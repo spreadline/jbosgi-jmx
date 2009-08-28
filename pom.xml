@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+  <!-- ====================================================================== -->
+  <!--                                                                        -->
+  <!--  JBoss, the OpenSource J2EE webOS                                      -->
+  <!--                                                                        -->
+  <!--  Distributable under LGPL license.                                     -->
+  <!--  See terms of license at http://www.gnu.org.                           -->
+  <!--                                                                        -->
+  <!-- ====================================================================== -->
+
+  <!-- $Id$ -->
+  
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <name>JBossOSGi Bundles - JMX</name>
+  <description>The JBossOSGi MBeanServer Service</description>
+  
+  <groupId>org.jboss.osgi.bundles</groupId>
+  <artifactId>jboss-osgi-jmx</artifactId>
+  <packaging>bundle</packaging>
+  
+  <version>1.0.1-SNAPSHOT</version>
+  
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jboss.osgi</groupId>
+    <artifactId>jboss-osgi-parent</artifactId>
+    <version>1.0.2-SNAPSHOT</version>
+  </parent>
+
+  <!-- Properties -->
+  <properties>
+    <version.jboss.osgi.common.core>2.2.11.SP1</version.jboss.osgi.common.core>
+    <version.jboss.osgi.jndi>1.0.1-SNAPSHOT</version.jboss.osgi.jndi>
+    <version.osgi>r4v42-20090728</version.osgi>
+  </properties>
+  
+  <!-- Dependencies -->
+  <dependencies>
+    <dependency>
+      <groupId>org.jboss.osgi.bundles</groupId>
+      <artifactId>jboss-osgi-jndi</artifactId>
+      <version>${version.jboss.osgi.jndi}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.osgi.bundles</groupId>
+      <artifactId>jboss-osgi-common-core</artifactId>
+      <version>${version.jboss.osgi.common.core}</version>
+    </dependency>
+    
+    <!-- OSGi Dependencies -->
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>${version.osgi}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>${version.osgi}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${artifactId}</Bundle-SymbolicName>
+            <Bundle-Activator>org.jboss.osgi.jmx.internal.JMXServiceActivator</Bundle-Activator>
+            <Export-Package>
+              org.jboss.osgi.jmx;version=${version}
+            </Export-Package>
+            <Import-Package>
+            
+              <!-- system -->
+              javax.management*,
+              javax.naming, 
+              javax.naming.spi,
+              
+              <!-- jboss-osgi --> 
+              org.jboss.osgi.common.log;version=1.0,
+              org.jboss.osgi.spi.capability;version=1.0, 
+              org.jboss.osgi.spi.management;version=1.0,
+              
+              <!-- osgi --> 
+              org.osgi.framework;version=1.4,
+              org.osgi.service.log,
+              org.osgi.util.tracker,
+              
+              <!-- optional -->
+              org.jboss.osgi.jndi;resolution:=optional, 
+              org.jboss.net.sockets;resolution:=optional,
+              org.jnp.interfaces;resolution:=optional,
+            </Import-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
+</project>
