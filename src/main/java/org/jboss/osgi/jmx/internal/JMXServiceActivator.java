@@ -27,6 +27,9 @@ import static org.jboss.osgi.jmx.Constants.REMOTE_JMX_HOST;
 import static org.jboss.osgi.jmx.Constants.REMOTE_JMX_RMI_ADAPTOR;
 import static org.jboss.osgi.jmx.Constants.REMOTE_JMX_RMI_PORT;
 
+import java.io.IOException;
+import java.net.Socket;
+
 import javax.management.MBeanServer;
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXServiceURL;
@@ -66,23 +69,26 @@ public class JMXServiceActivator implements BundleActivator
    public void start(BundleContext context)
    {
       log = new LogServiceTracker(context);
-      
+
       MBeanServerLocator locator = new MBeanServerLocator(context);
       mbeanServer = locator.getMBeanServer();
-      
+
       // Register the MBeanServer 
       context.registerService(MBeanServer.class.getName(), mbeanServer, null);
       log.log(LogService.LOG_DEBUG, "MBeanServer registered");
-      
+
+      // Get the system BundleContext
+      BundleContext sysContext = context.getBundle(0).getBundleContext();
+
       // Register the ManagedBundleService 
-      managedBundleService = new ManagedBundleServiceImpl(context, mbeanServer);
+      managedBundleService = new ManagedBundleServiceImpl(sysContext, mbeanServer);
       context.registerService(ManagedBundleService.class.getName(), managedBundleService, null);
       log.log(LogService.LOG_DEBUG, "ManagedBundleService registered");
-      
+
       // Register the ManagedFramework 
-      managedFramework = new ManagedFramework(context, mbeanServer);
+      managedFramework = new ManagedFramework(sysContext, mbeanServer);
       managedFramework.start();
-      
+
       // Register all ManagedBundles 
       for (Bundle bundle : context.getBundles())
          managedBundleService.register(bundle);
@@ -98,7 +104,7 @@ public class JMXServiceActivator implements BundleActivator
       rmiAdaptorPath = context.getProperty(REMOTE_JMX_RMI_ADAPTOR);
       if (rmiAdaptorPath == null)
          rmiAdaptorPath = "jmx/invoker/RMIAdaptor";
-      
+
       // Start tracking the NamingService
       InitialContextTracker tracker = new InitialContextTracker(context, rmiAdaptorPath);
       tracker.open();
@@ -109,59 +115,69 @@ public class JMXServiceActivator implements BundleActivator
       // Unregister all ManagedBundles 
       for (Bundle bundle : context.getBundles())
          managedBundleService.unregister(bundle);
-      
+
       // Unregister the managed framework
       managedFramework.stop();
-      
-      stopJMXConnectorService();
-   }
 
-   private void stopJMXConnectorService()
-   {
       if (jmxConnector != null)
       {
          jmxConnector.stop();
          jmxConnector = null;
       }
    }
-   
+
    class InitialContextTracker extends ServiceTracker
    {
       private String rmiAdaptorPath;
-      
+      private boolean rmiAdaptorBound;
+
       public InitialContextTracker(BundleContext context, String rmiAdaptorPath)
       {
          super(context, InitialContext.class.getName(), null);
          this.rmiAdaptorPath = rmiAdaptorPath;
       }
-      
+
       @Override
       public Object addingService(ServiceReference reference)
       {
          InitialContext iniCtx = (InitialContext)super.addingService(reference);
          
-         // Start JMXConnectorService
-         if (jmxConnector == null)
+         try
          {
+            // Assume that the JMXConnector is already running if we can connect to it 
+            Socket socket = new Socket(jmxHost, new Integer(jmxRmiPort));
+            socket.close();
+         }
+         catch (IOException ex)
+         {
+            // Start JMXConnectorService
             jmxConnector = new JMXConnectorService(context, mbeanServer, jmxHost, Integer.parseInt(jmxRmiPort));
             jmxConnector.start();
          }
          
-         // Bind the RMIAdaptor
          try
          {
-            iniCtx.createSubcontext("jmx").createSubcontext("invoker");
-            StringRefAddr addr = new StringRefAddr(JMXServiceURL.class.getName(), jmxConnector.getServiceURL().toString());
-            Reference ref = new Reference(MBeanServerConnection.class.getName(), addr, RMIAdaptorFactory.class.getName(), null);
-            iniCtx.bind(rmiAdaptorPath, ref);
-            
-            log.log(LogService.LOG_INFO, "MBeanServerConnection bound to: " + rmiAdaptorPath);
+            // Check if the RMIAdaptor is alrady bound
+            iniCtx.lookup(rmiAdaptorPath);
          }
-         catch (NamingException ex)
+         catch (NamingException lookupEx)
          {
-            log.log(LogService.LOG_ERROR, "Cannot bind RMIAdaptor", ex);
+            // Bind the RMIAdaptor
+            try
+            {
+               iniCtx.createSubcontext("jmx").createSubcontext("invoker");
+               StringRefAddr addr = new StringRefAddr(JMXServiceURL.class.getName(), jmxConnector.getServiceURL().toString());
+               Reference ref = new Reference(MBeanServerConnection.class.getName(), addr, RMIAdaptorFactory.class.getName(), null);
+               iniCtx.bind(rmiAdaptorPath, ref);
+               rmiAdaptorBound = true;
+
+               log.log(LogService.LOG_INFO, "MBeanServerConnection bound to: " + rmiAdaptorPath);
+            }
+            catch (NamingException ex)
+            {
+               log.log(LogService.LOG_ERROR, "Cannot bind RMIAdaptor", ex);
+            }
          }
-         
          return iniCtx;
       }
 
@@ -169,22 +185,28 @@ public class JMXServiceActivator implements BundleActivator
       public void removedService(ServiceReference reference, Object service)
       {
          InitialContext iniCtx = (InitialContext)service;
-         
+
          // Stop JMXConnectorService
-         stopJMXConnectorService();
-         
+         if (jmxConnector != null)
+         {
+            jmxConnector.stop();
+            jmxConnector = null;
+         }
+
          // Unbind the RMIAdaptor
-         try
+         if (rmiAdaptorBound == true)
          {
-            iniCtx.unbind(rmiAdaptorPath);
-            
-            log.log(LogService.LOG_INFO, "MBeanServerConnection unbound from: " + rmiAdaptorPath);
+            try
+            {
+               iniCtx.unbind(rmiAdaptorPath);
+               log.log(LogService.LOG_INFO, "MBeanServerConnection unbound from: " + rmiAdaptorPath);
+            }
+            catch (NamingException ex)
+            {
+               log.log(LogService.LOG_ERROR, "Cannot unbind RMIAdaptor", ex);
+            }
          }
-         catch (NamingException ex)
-         {
-            log.log(LogService.LOG_ERROR, "Cannot unbind RMIAdaptor", ex);
-         }
-         
+
          super.removedService(reference, service);
       }
    }
