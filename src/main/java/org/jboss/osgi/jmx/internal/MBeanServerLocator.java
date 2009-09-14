@@ -39,19 +39,24 @@ import org.osgi.service.log.LogService;
  * @author thomas.diesler@jboss.com
  * @since 24-Apr-2009
  */
-public class MBeanServerLocator 
+public class MBeanServerLocator
 {
    private LogService log;
    private MBeanServer mbeanServer;
-   
+
    @SuppressWarnings("unchecked")
    public MBeanServerLocator(BundleContext context)
    {
       log = new LogServiceTracker(context);
-      
+
       // Check if there is an MBeanServer service already
       ServiceReference sref = context.getServiceReference(MBeanServer.class.getName());
-      if (sref == null)
+      if (sref != null)
+      {
+         mbeanServer = (MBeanServer)context.getService(sref);
+         log.log(LogService.LOG_DEBUG, "Found MBeanServer fom service: " + mbeanServer.getDefaultDomain());
+      }
+      else
       {
          ArrayList<MBeanServer> serverArr = MBeanServerFactory.findMBeanServer(null);
          if (serverArr.size() > 1)
