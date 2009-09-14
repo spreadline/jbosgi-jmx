@@ -39,15 +39,21 @@ import org.osgi.service.log.LogService;
  * @author thomas.diesler@jboss.com
  * @since 24-Apr-2009
  */
-public class MBeanServerLocator
+public class MBeanServerService
 {
+   private BundleContext context;
    private LogService log;
-   private MBeanServer mbeanServer;
 
-   @SuppressWarnings("unchecked")
-   public MBeanServerLocator(BundleContext context)
+   public MBeanServerService(BundleContext context)
    {
       log = new LogServiceTracker(context);
+      this.context = context;
+   }
+
+   @SuppressWarnings("unchecked")
+   public MBeanServer registerMBeanServer()
+   {
+      MBeanServer mbeanServer = null;
 
       // Check if there is an MBeanServer service already
       ServiceReference sref = context.getServiceReference(MBeanServer.class.getName());
@@ -55,29 +61,29 @@ public class MBeanServerLocator
       {
          mbeanServer = (MBeanServer)context.getService(sref);
          log.log(LogService.LOG_DEBUG, "Found MBeanServer fom service: " + mbeanServer.getDefaultDomain());
+         return mbeanServer;
       }
-      else
+
+      ArrayList<MBeanServer> serverArr = MBeanServerFactory.findMBeanServer(null);
+      if (serverArr.size() > 1)
+         throw new IllegalStateException("Multiple MBeanServer instances not supported");
+
+      if (serverArr.size() == 1)
       {
-         ArrayList<MBeanServer> serverArr = MBeanServerFactory.findMBeanServer(null);
-         if (serverArr.size() > 1)
-            throw new IllegalStateException("Multiple MBeanServer instances not supported");
-
-         if (serverArr.size() == 1)
-         {
-            mbeanServer = serverArr.get(0);
-            log.log(LogService.LOG_DEBUG, "Found MBeanServer: " + mbeanServer.getDefaultDomain());
-         }
-
-         if (mbeanServer == null)
-         {
-            log.log(LogService.LOG_DEBUG, "No MBeanServer, create one ...");
-            mbeanServer = MBeanServerFactory.createMBeanServer();
-         }
+         mbeanServer = serverArr.get(0);
+         log.log(LogService.LOG_DEBUG, "Found MBeanServer: " + mbeanServer.getDefaultDomain());
       }
-   }
 
-   public MBeanServer getMBeanServer()
-   {
+      if (mbeanServer == null)
+      {
+         log.log(LogService.LOG_DEBUG, "No MBeanServer, create one ...");
+         mbeanServer = MBeanServerFactory.createMBeanServer();
+      }
+
+      // Register the MBeanServer 
+      context.registerService(MBeanServer.class.getName(), mbeanServer, null);
+      log.log(LogService.LOG_DEBUG, "MBeanServer registered");
+      
       return mbeanServer;
    }
 }

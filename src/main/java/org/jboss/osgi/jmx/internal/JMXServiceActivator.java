@@ -69,12 +69,9 @@ public class JMXServiceActivator implements BundleActivator
    {
       log = new LogServiceTracker(context);
 
-      MBeanServerLocator locator = new MBeanServerLocator(context);
-      mbeanServer = locator.getMBeanServer();
-
       // Register the MBeanServer 
-      context.registerService(MBeanServer.class.getName(), mbeanServer, null);
-      log.log(LogService.LOG_DEBUG, "MBeanServer registered");
+      MBeanServerService service = new MBeanServerService(context);
+      mbeanServer = service.registerMBeanServer();
 
       // Get the system BundleContext
       BundleContext sysContext = context.getBundle(0).getBundleContext();
@@ -140,7 +137,7 @@ public class JMXServiceActivator implements BundleActivator
       public Object addingService(ServiceReference reference)
       {
          InitialContext iniCtx = (InitialContext)super.addingService(reference);
-         
+
          JMXServiceURL serviceURL = JMXConnectorService.getServiceURL(jmxHost, Integer.parseInt(jmxRmiPort));
          try
          {
@@ -154,7 +151,7 @@ public class JMXServiceActivator implements BundleActivator
             // Assume that the JMXConnector is already running if we cannot start it 
             log.log(LogService.LOG_DEBUG, "Assume JMXConnectorServer already running on: " + serviceURL);
          }
-         
+
          try
          {
             // Check if the RMIAdaptor is alrady bound
