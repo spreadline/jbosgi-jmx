@@ -28,10 +28,11 @@ import static org.jboss.osgi.jmx.Constants.REMOTE_JMX_RMI_ADAPTOR;
 import static org.jboss.osgi.jmx.Constants.REMOTE_JMX_RMI_PORT;
 
 import java.io.IOException;
-import java.net.Socket;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerConnection;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -142,11 +143,13 @@ public class JMXServiceActivator implements BundleActivator
       {
          InitialContext iniCtx = (InitialContext)super.addingService(reference);
          
+         JMXServiceURL serviceURL = JMXConnectorService.getServiceURL(jmxHost, Integer.parseInt(jmxRmiPort));
          try
          {
             // Assume that the JMXConnector is already running if we can connect to it 
-            Socket socket = new Socket(jmxHost, new Integer(jmxRmiPort));
-            socket.close();
+            JMXConnector connector = JMXConnectorFactory.connect(serviceURL);
+            connector.connect();
+            connector.close();
          }
          catch (IOException ex)
          {
@@ -166,7 +169,7 @@ public class JMXServiceActivator implements BundleActivator
             try
             {
                iniCtx.createSubcontext("jmx").createSubcontext("invoker");
-               StringRefAddr addr = new StringRefAddr(JMXServiceURL.class.getName(), jmxConnector.getServiceURL().toString());
+               StringRefAddr addr = new StringRefAddr(JMXServiceURL.class.getName(), serviceURL.toString());
                Reference ref = new Reference(MBeanServerConnection.class.getName(), addr, RMIAdaptorFactory.class.getName(), null);
                iniCtx.bind(rmiAdaptorPath, ref);
                rmiAdaptorBound = true;
