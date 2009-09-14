@@ -31,8 +31,6 @@ import java.io.IOException;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerConnection;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -146,16 +144,15 @@ public class JMXServiceActivator implements BundleActivator
          JMXServiceURL serviceURL = JMXConnectorService.getServiceURL(jmxHost, Integer.parseInt(jmxRmiPort));
          try
          {
-            // Assume that the JMXConnector is already running if we can connect to it 
-            JMXConnector connector = JMXConnectorFactory.connect(serviceURL);
-            connector.connect();
-            connector.close();
+            // Try to start the JMXConnector, this should fail if it is already running
+            // [TODO] is there a better way to check whether the connector is already running?
+            jmxConnector = new JMXConnectorService(context, mbeanServer, jmxHost, Integer.parseInt(jmxRmiPort));
+            jmxConnector.start();
          }
          catch (IOException ex)
          {
-            // Start JMXConnectorService
-            jmxConnector = new JMXConnectorService(context, mbeanServer, jmxHost, Integer.parseInt(jmxRmiPort));
-            jmxConnector.start();
+            // Assume that the JMXConnector is already running if we cannot start it 
+            log.log(LogService.LOG_DEBUG, "Assume JMXConnectorServer already running on: " + serviceURL);
          }
          
          try

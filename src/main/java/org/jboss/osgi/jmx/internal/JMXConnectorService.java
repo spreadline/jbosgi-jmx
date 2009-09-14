@@ -55,40 +55,29 @@ public class JMXConnectorService
    private boolean shutdownRegistry;
    private Registry rmiRegistry;
 
-   public JMXConnectorService(BundleContext context, MBeanServer mbeanServer, String host, int rmiPort)
+   public JMXConnectorService(BundleContext context, MBeanServer mbeanServer, String host, int rmiPort) throws IOException
    {
       log = new LogServiceTracker(context);
 
+      // check to see if registry already created
+      rmiRegistry = LocateRegistry.getRegistry(host, rmiPort);
       try
       {
-         // check to see if registry already created
-         rmiRegistry = LocateRegistry.getRegistry(host, rmiPort);
-         try
-         {
-            rmiRegistry.list();
-            log.log(LogService.LOG_DEBUG, "RMI registry running at host=" + host + ",port=" + rmiPort);
-         }
-         catch (RemoteException e)
-         {
-            log.log(LogService.LOG_DEBUG, "No RMI registry running at host=" + host + ",port=" + rmiPort + ".  Will create one.");
-            rmiRegistry = LocateRegistry.createRegistry(rmiPort, null, new DefaultSocketFactory(InetAddress.getByName(host)));
-            shutdownRegistry = true;
-         }
-
-         // create new connector server and start it
-         serviceURL = getServiceURL(host, rmiPort);
-         jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, null, mbeanServer);
-
-         log.log(LogService.LOG_DEBUG, "JMXConnectorServer created: " + serviceURL);
+         rmiRegistry.list();
+         log.log(LogService.LOG_DEBUG, "RMI registry running at host=" + host + ",port=" + rmiPort);
       }
-      catch (RuntimeException rte)
+      catch (RemoteException e)
       {
-         throw rte;
+         log.log(LogService.LOG_DEBUG, "No RMI registry running at host=" + host + ",port=" + rmiPort + ".  Will create one.");
+         rmiRegistry = LocateRegistry.createRegistry(rmiPort, null, new DefaultSocketFactory(InetAddress.getByName(host)));
+         shutdownRegistry = true;
       }
-      catch (Exception ex)
-      {
-         throw new IllegalStateException("Cannot create JMXConnectorServer", ex);
-      }
+
+      // create new connector server and start it
+      serviceURL = getServiceURL(host, rmiPort);
+      jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, null, mbeanServer);
+
+      log.log(LogService.LOG_DEBUG, "JMXConnectorServer created: " + serviceURL);
    }
 
    static JMXServiceURL getServiceURL(String host, int rmiPort)
