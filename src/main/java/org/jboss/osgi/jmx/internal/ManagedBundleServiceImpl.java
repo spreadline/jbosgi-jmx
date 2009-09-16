@@ -58,8 +58,11 @@ public class ManagedBundleServiceImpl implements ManagedBundleService
          ManagedBundle mb = new ManagedBundle(bundle);
          ObjectName oname = mb.getObjectName();
          
-         log.log(LogService.LOG_DEBUG, "Register managed bundle: " + oname);
-         mbeanServer.registerMBean(mb, oname);
+         if (mbeanServer.isRegistered(oname) == false)
+         {
+            log.log(LogService.LOG_DEBUG, "Register managed bundle: " + oname);
+            mbeanServer.registerMBean(mb, oname);
+         }
          
          return mb;
       }
