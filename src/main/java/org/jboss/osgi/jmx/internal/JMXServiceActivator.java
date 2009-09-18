@@ -154,7 +154,7 @@ public class JMXServiceActivator implements BundleActivator
 
          try
          {
-            // Check if the RMIAdaptor is alrady bound
+            // Check if the RMIAdaptor is already bound
             iniCtx.lookup(rmiAdaptorPath);
          }
          catch (NamingException lookupEx)
