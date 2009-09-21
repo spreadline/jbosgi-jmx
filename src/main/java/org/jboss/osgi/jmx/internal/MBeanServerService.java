@@ -66,9 +66,9 @@ public class MBeanServerService
 
       ArrayList<MBeanServer> serverArr = MBeanServerFactory.findMBeanServer(null);
       if (serverArr.size() > 1)
-         throw new IllegalStateException("Multiple MBeanServer instances not supported");
+         log.log(LogService.LOG_WARNING, "Multiple MBeanServer instances: " + serverArr);
 
-      if (serverArr.size() == 1)
+      if (serverArr.size() > 0)
       {
          mbeanServer = serverArr.get(0);
          log.log(LogService.LOG_DEBUG, "Found MBeanServer: " + mbeanServer.getDefaultDomain());
