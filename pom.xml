@@ -27,14 +27,14 @@
   <parent>
     <groupId>org.jboss.osgi</groupId>
     <artifactId>jboss-osgi-parent</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.4-SNAPSHOT</version>
   </parent>
 
   <!-- Properties -->
   <properties>
     <version.jboss.osgi.common.core>2.2.13.GA</version.jboss.osgi.common.core>
     <version.jboss.osgi.jndi>1.0.1</version.jboss.osgi.jndi>
-    <version.osgi>r4v42</version.osgi>
+    <version.osgi>4.2.0</version.osgi>
   </properties>
   
   <!-- Dependencies -->
