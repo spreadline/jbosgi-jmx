@@ -14,8 +14,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
-  <name>JBossOSGi Bundles - JMX</name>
-  <description>The JBossOSGi MBeanServer Service</description>
+  <name>JBossOSGi Reactor - JMX</name>
+  <description>The JBossOSGi Management</description>
   
   <groupId>org.jboss.osgi.bundles</groupId>
   <artifactId>jboss-osgi-jmx</artifactId>
@@ -26,15 +26,12 @@
   <!-- Parent -->
   <parent>
     <groupId>org.jboss.osgi</groupId>
-    <artifactId>jboss-osgi-parent</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <artifactId>jboss-osgi</artifactId>
+    <version>1.0.0.Beta5</version>
   </parent>
 
   <!-- Properties -->
   <properties>
-    <version.jboss.osgi.common.core>2.2.13.GA</version.jboss.osgi.common.core>
-    <version.jboss.osgi.jndi>1.0.1</version.jboss.osgi.jndi>
-    <version.osgi>4.2.0</version.osgi>
   </properties>
   
   <!-- Dependencies -->
@@ -42,25 +39,21 @@
     <dependency>
       <groupId>org.jboss.osgi.bundles</groupId>
       <artifactId>jboss-osgi-jndi</artifactId>
-      <version>${version.jboss.osgi.jndi}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.osgi.bundles</groupId>
       <artifactId>jboss-osgi-common-core</artifactId>
-      <version>${version.jboss.osgi.common.core}</version>
     </dependency>
     
     <!-- OSGi Dependencies -->
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
-      <version>${version.osgi}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
-      <version>${version.osgi}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
