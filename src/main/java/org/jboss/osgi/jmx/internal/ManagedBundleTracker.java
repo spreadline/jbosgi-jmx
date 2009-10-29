@@ -28,7 +28,6 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.jboss.osgi.spi.management.ManagedBundle;
-import org.jboss.osgi.spi.management.ManagedBundleService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -37,28 +36,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A service that registers an MBeanServer
+ * Track and register/unregister bundles with the MBeanServer.
  * 
  * @author thomas.diesler@jboss.com
- * @since 24-Apr-2009
+ * @since 29-Oct-2009
  */
-public class ManagedBundleServiceImpl implements ManagedBundleService
+public class ManagedBundleTracker extends BundleTracker
 {
    // Provide logging
-   private Logger log = LoggerFactory.getLogger(ManagedBundleServiceImpl.class);
-   
+   private Logger log = LoggerFactory.getLogger(ManagedBundleTracker.class);
+
    private MBeanServer mbeanServer;
 
-   public ManagedBundleServiceImpl(BundleContext context, MBeanServer mbeanServer)
+   public ManagedBundleTracker(BundleContext context, MBeanServer mbeanServer)
    {
+      super(context, Bundle.INSTALLED | Bundle.RESOLVED | Bundle.ACTIVE | Bundle.UNINSTALLED, null);
       this.mbeanServer = mbeanServer;
-
-      // Start tracking bundles
-      ManagedBundleTracker bundleTracker = new ManagedBundleTracker(context);
-      bundleTracker.open();
    }
 
-   public ManagedBundle register(Bundle bundle)
+   @Override
+   public Object addingBundle(Bundle bundle, BundleEvent event)
+   {
+      Object retObject = super.addingBundle(bundle, event);
+      register(bundle);
+      return retObject;
+   }
+
+   @Override
+   public void modifiedBundle(Bundle bundle, BundleEvent event, Object object)
+   {
+      if (event != null && event.getType() == BundleEvent.UNINSTALLED)
+         unregister(bundle);
+   }
+
+   private ManagedBundle register(Bundle bundle)
    {
       try
       {
@@ -80,44 +91,23 @@ public class ManagedBundleServiceImpl implements ManagedBundleService
       }
    }
 
-   public void unregister(Bundle bundle)
+   private void unregister(Bundle bundle)
    {
       try
       {
          ManagedBundle mb = new ManagedBundle(bundle);
          ObjectName oname = mb.getObjectName();
 
-         log.debug("Unregister managed bundle: " + oname);
          if (mbeanServer.isRegistered(oname))
+         {
+            log.debug("Unregister managed bundle: " + oname);
             mbeanServer.unregisterMBean(oname);
+         }
 
       }
       catch (JMException ex)
       {
          log.error("Cannot register managed bundle", ex);
-      }
-   }
-
-   class ManagedBundleTracker extends BundleTracker
-   {
-      ManagedBundleTracker(BundleContext context)
-      {
-         super(context, Bundle.INSTALLED | Bundle.RESOLVED | Bundle.ACTIVE | Bundle.UNINSTALLED, null);
-      }
-
-      @Override
-      public Object addingBundle(Bundle bundle, BundleEvent event)
-      {
-         Object retObject = super.addingBundle(bundle, event);
-         register(bundle);
-         return retObject;
-      }
-
-      @Override
-      public void removedBundle(Bundle bundle, BundleEvent event, Object object)
-      {
-         unregister(bundle);
-         super.removedBundle(bundle, event, object);
       }
    }
 }

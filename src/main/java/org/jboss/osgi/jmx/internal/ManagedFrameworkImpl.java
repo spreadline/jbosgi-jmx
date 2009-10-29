@@ -40,6 +40,7 @@ import javax.management.ObjectName;
 import javax.management.QueryExp;
 import javax.management.StandardMBean;
 
+import org.jboss.osgi.spi.management.ManagedBundle;
 import org.jboss.osgi.spi.management.ManagedFrameworkMBean;
 import org.jboss.osgi.spi.management.ManagedServiceReference;
 import org.jboss.osgi.spi.management.ObjectNameFactory;
@@ -63,25 +64,28 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
    final Logger log = LoggerFactory.getLogger(ManagedFrameworkImpl.class);
 
    private MBeanServer mbeanServer;
-   private BundleContext bundleContext;
+   private BundleContext context;
+   private ManagedBundleTracker bundleTracker;
 
-   public ManagedFrameworkImpl(BundleContext bundleContext, MBeanServer mbeanServer)
+   public ManagedFrameworkImpl(BundleContext context, MBeanServer mbeanServer)
    {
-      if (bundleContext == null)
+      if (context == null)
          throw new IllegalArgumentException("Null BundleContext");
-      this.bundleContext = bundleContext;
-
       if (mbeanServer == null)
          throw new IllegalArgumentException("Null MBeanServer");
+      
+      if (context.getBundle().getBundleId() != 0)
+         throw new IllegalArgumentException("Not the system bundle context: " + context);
+      
+      this.context = context;
       this.mbeanServer = mbeanServer;
-
-      if (bundleContext.getBundle().getBundleId() != 0)
-         throw new IllegalArgumentException("Not the system bundle context: " + bundleContext);
+      
+      this.bundleTracker = new ManagedBundleTracker(context, mbeanServer);
    }
 
    public BundleContext getBundleContext()
    {
-      return bundleContext;
+      return context;
    }
 
    @SuppressWarnings("unchecked")
@@ -207,6 +211,9 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
 
    public void start()
    {
+      // Start tracking the bundles
+      bundleTracker.open();
+      
       try
       {
          if (mbeanServer != null)
@@ -241,7 +248,7 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
 
       public boolean apply(ObjectName name)
       {
-         return name.getKeyProperty("bundle") != null;
+         return name.getKeyProperty(ManagedBundle.PROPERTY_SYMBOLIC_NAME) != null;
       }
 
       public void setMBeanServer(MBeanServer server)

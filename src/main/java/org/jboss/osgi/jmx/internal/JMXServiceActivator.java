@@ -37,7 +37,6 @@ import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
-import org.jboss.osgi.spi.management.ManagedBundleService;
 import org.jboss.osgi.spi.management.ManagedFramework;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -77,10 +76,6 @@ public class JMXServiceActivator implements BundleActivator
       managedFramework = new ManagedFrameworkImpl(sysContext, mbeanServer);
       context.registerService(ManagedFramework.class.getName(), managedFramework, null);
       managedFramework.start();
-
-      // Register the ManagedBundleService 
-      ManagedBundleService managedBundleService = new ManagedBundleServiceImpl(sysContext, mbeanServer);
-      context.registerService(ManagedBundleService.class.getName(), managedBundleService, null);
 
       jmxHost = context.getProperty(REMOTE_JMX_HOST);
       if (jmxHost == null)
