@@ -86,7 +86,11 @@
               <!-- osgi --> 
               org.osgi.framework;version=1.4,
               org.osgi.service.log,
+              org.osgi.service.packageadmin,
               org.osgi.util.tracker,
+              
+              <!-- logging -->
+              org.slf4j,
               
               <!-- FIXME optional -->
               org.jboss.osgi.jndi, 

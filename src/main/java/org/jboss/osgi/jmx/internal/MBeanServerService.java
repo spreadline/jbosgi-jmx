@@ -28,10 +28,10 @@ import java.util.ArrayList;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
-import org.jboss.osgi.common.log.LogServiceTracker;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.log.LogService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A service that registers an MBeanServer
@@ -41,12 +41,13 @@ import org.osgi.service.log.LogService;
  */
 public class MBeanServerService
 {
+   // Provide logging
+   private Logger log = LoggerFactory.getLogger(MBeanServerService.class);
+
    private BundleContext context;
-   private LogService log;
 
    public MBeanServerService(BundleContext context)
    {
-      log = new LogServiceTracker(context);
       this.context = context;
    }
 
@@ -60,30 +61,30 @@ public class MBeanServerService
       if (sref != null)
       {
          mbeanServer = (MBeanServer)context.getService(sref);
-         log.log(LogService.LOG_DEBUG, "Found MBeanServer fom service: " + mbeanServer.getDefaultDomain());
+         log.debug("Found MBeanServer fom service: " + mbeanServer.getDefaultDomain());
          return mbeanServer;
       }
 
       ArrayList<MBeanServer> serverArr = MBeanServerFactory.findMBeanServer(null);
       if (serverArr.size() > 1)
-         log.log(LogService.LOG_WARNING, "Multiple MBeanServer instances: " + serverArr);
+         log.warn("Multiple MBeanServer instances: " + serverArr);
 
       if (serverArr.size() > 0)
       {
          mbeanServer = serverArr.get(0);
-         log.log(LogService.LOG_DEBUG, "Found MBeanServer: " + mbeanServer.getDefaultDomain());
+         log.debug("Found MBeanServer: " + mbeanServer.getDefaultDomain());
       }
 
       if (mbeanServer == null)
       {
-         log.log(LogService.LOG_DEBUG, "No MBeanServer, create one ...");
+         log.debug("No MBeanServer, create one ...");
          mbeanServer = MBeanServerFactory.createMBeanServer();
       }
 
       // Register the MBeanServer 
       context.registerService(MBeanServer.class.getName(), mbeanServer, null);
-      log.log(LogService.LOG_DEBUG, "MBeanServer registered");
-      
+      log.debug("MBeanServer registered");
+
       return mbeanServer;
    }
 }

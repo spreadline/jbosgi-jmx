@@ -27,12 +27,14 @@ import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.jboss.osgi.common.log.LogServiceTracker;
 import org.jboss.osgi.spi.management.ManagedBundle;
 import org.jboss.osgi.spi.management.ManagedBundleService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.log.LogService;
+import org.osgi.framework.BundleEvent;
+import org.osgi.util.tracker.BundleTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A service that registers an MBeanServer
@@ -42,13 +44,18 @@ import org.osgi.service.log.LogService;
  */
 public class ManagedBundleServiceImpl implements ManagedBundleService
 {
-   private LogService log;
-   private MBeanServer mbeanServer;
+   // Provide logging
+   private Logger log = LoggerFactory.getLogger(ManagedBundleServiceImpl.class);
    
+   private MBeanServer mbeanServer;
+
    public ManagedBundleServiceImpl(BundleContext context, MBeanServer mbeanServer)
    {
-      this.log = new LogServiceTracker(context);
       this.mbeanServer = mbeanServer;
+
+      // Start tracking bundles
+      ManagedBundleTracker bundleTracker = new ManagedBundleTracker(context);
+      bundleTracker.open();
    }
 
    public ManagedBundle register(Bundle bundle)
@@ -57,18 +64,18 @@ public class ManagedBundleServiceImpl implements ManagedBundleService
       {
          ManagedBundle mb = new ManagedBundle(bundle);
          ObjectName oname = mb.getObjectName();
-         
+
          if (mbeanServer.isRegistered(oname) == false)
          {
-            log.log(LogService.LOG_DEBUG, "Register managed bundle: " + oname);
+            log.debug("Register managed bundle: " + oname);
             mbeanServer.registerMBean(mb, oname);
          }
-         
+
          return mb;
       }
       catch (JMException ex)
       {
-         log.log(LogService.LOG_ERROR, "Cannot register managed bundle", ex);
+         log.error("Cannot register managed bundle", ex);
          return null;
       }
    }
@@ -79,15 +86,38 @@ public class ManagedBundleServiceImpl implements ManagedBundleService
       {
          ManagedBundle mb = new ManagedBundle(bundle);
          ObjectName oname = mb.getObjectName();
-         
-         log.log(LogService.LOG_DEBUG, "Unregister managed bundle: " + oname);
+
+         log.debug("Unregister managed bundle: " + oname);
          if (mbeanServer.isRegistered(oname))
             mbeanServer.unregisterMBean(oname);
-         
+
       }
       catch (JMException ex)
       {
-         log.log(LogService.LOG_ERROR, "Cannot register managed bundle", ex);
+         log.error("Cannot register managed bundle", ex);
+      }
+   }
+
+   class ManagedBundleTracker extends BundleTracker
+   {
+      ManagedBundleTracker(BundleContext context)
+      {
+         super(context, Bundle.INSTALLED | Bundle.RESOLVED | Bundle.ACTIVE | Bundle.UNINSTALLED, null);
+      }
+
+      @Override
+      public Object addingBundle(Bundle bundle, BundleEvent event)
+      {
+         Object retObject = super.addingBundle(bundle, event);
+         register(bundle);
+         return retObject;
+      }
+
+      @Override
+      public void removedBundle(Bundle bundle, BundleEvent event, Object object)
+      {
+         unregister(bundle);
+         super.removedBundle(bundle, event, object);
       }
    }
 }
