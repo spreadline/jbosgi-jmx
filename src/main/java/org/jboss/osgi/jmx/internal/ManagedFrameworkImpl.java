@@ -73,13 +73,13 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
          throw new IllegalArgumentException("Null BundleContext");
       if (mbeanServer == null)
          throw new IllegalArgumentException("Null MBeanServer");
-      
+
       if (context.getBundle().getBundleId() != 0)
          throw new IllegalArgumentException("Not the system bundle context: " + context);
-      
+
       this.context = context;
       this.mbeanServer = mbeanServer;
-      
+
       this.bundleTracker = new ManagedBundleTracker(context, mbeanServer);
    }
 
@@ -100,9 +100,19 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
       {
          // [TODO] Support bundle version 
          if (names.size() > 1)
-            throw new IllegalArgumentException("Multiple bundles found: " + names);
+            log.warn("Multiple bundles found: " + names);
 
-         oname = names.iterator().next();
+         // Use the bundle with the highest id
+         for (ObjectName aux : names)
+         {
+            if (oname == null)
+               oname = aux;
+
+            Integer bestId = new Integer(oname.getKeyProperty(PROPERTY_ID));
+            Integer auxId = new Integer(aux.getKeyProperty(PROPERTY_ID));
+            if (bestId < auxId)
+               oname = aux;
+         }
       }
 
       return oname;
@@ -213,7 +223,7 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
    {
       // Start tracking the bundles
       bundleTracker.open();
-      
+
       try
       {
          if (mbeanServer != null)
