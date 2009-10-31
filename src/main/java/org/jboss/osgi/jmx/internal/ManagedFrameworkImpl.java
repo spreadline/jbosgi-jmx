@@ -25,6 +25,7 @@ package org.jboss.osgi.jmx.internal;
 
 import static org.jboss.osgi.spi.OSGiConstants.DOMAIN_NAME;
 import static org.jboss.osgi.spi.management.ManagedBundle.PROPERTY_SYMBOLIC_NAME;
+import static org.jboss.osgi.spi.management.ManagedBundle.PROPERTY_VERSION;
 import static org.jboss.osgi.spi.management.ManagedBundle.PROPERTY_ID;
 
 import java.util.ArrayList;
@@ -93,12 +94,11 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
    {
       ObjectName oname = null;
 
-      ObjectName pattern = ObjectNameFactory.create(DOMAIN_NAME + ":" + PROPERTY_SYMBOLIC_NAME + "=" + symbolicName + ",*");
-      Set<ObjectName> names = mbeanServer.queryNames(pattern, null);
+      String namestr = DOMAIN_NAME + ":" + PROPERTY_SYMBOLIC_NAME + "=" + symbolicName + "," + PROPERTY_VERSION + "=" + version + ",*" ;
+      Set<ObjectName> names = mbeanServer.queryNames(ObjectNameFactory.create(namestr), null);
 
       if (names.size() > 0)
       {
-         // [TODO] Support bundle version 
          if (names.size() > 1)
             log.warn("Multiple bundles found: " + names);
 
