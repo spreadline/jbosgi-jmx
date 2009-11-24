@@ -26,34 +26,54 @@
   <!-- Parent -->
   <parent>
     <groupId>org.jboss.osgi</groupId>
-    <artifactId>jboss-osgi</artifactId>
-    <version>1.0.0.Beta5</version>
+    <artifactId>jboss-osgi-parent</artifactId>
+    <version>1.0.4</version>
   </parent>
 
+  <!-- Subversion -->
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/jboss-osgi/projects/bundles/jmx/trunk</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/jboss-osgi/projects/bundles/jmx/trunk</developerConnection>
+    <url>http://fisheye.jboss.com/qsearch/JBossOSGi</url>
+  </scm>
+  
   <!-- Properties -->
   <properties>
+    <version.jboss.osgi.common.core>2.2.13.GA</version.jboss.osgi.common.core>
+    <version.jboss.osgi.jndi>1.0.1</version.jboss.osgi.jndi>
+    <version.jboss.osgi.spi>1.0.3</version.jboss.osgi.spi>
+    <version.osgi>4.2.0</version.osgi>
   </properties>
   
   <!-- Dependencies -->
   <dependencies>
     <dependency>
       <groupId>org.jboss.osgi.bundles</groupId>
-      <artifactId>jboss-osgi-jndi</artifactId>
+      <artifactId>jboss-osgi-common-core</artifactId>
+      <version>${version.jboss.osgi.common.core}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.osgi.bundles</groupId>
-      <artifactId>jboss-osgi-common-core</artifactId>
+      <artifactId>jboss-osgi-jndi</artifactId>
+      <version>${version.jboss.osgi.jndi}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.osgi</groupId>
+      <artifactId>jboss-osgi-spi</artifactId>
+      <version>${version.jboss.osgi.spi}</version>
     </dependency>
     
     <!-- OSGi Dependencies -->
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
+      <version>${version.osgi}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
+      <version>${version.osgi}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -131,12 +151,5 @@
       </plugin>
     </plugins>
   </build>
-  
-  <!-- Subversion -->
-  <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/jboss-osgi/projects/bundles/jmx/trunk</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/jboss-osgi/projects/bundles/jmx/trunk</developerConnection>
-    <url>http://fisheye.jboss.com/qsearch/JBossOSGi/projects/bundles/jmx/trunk</url>
-  </scm>
   
 </project>
