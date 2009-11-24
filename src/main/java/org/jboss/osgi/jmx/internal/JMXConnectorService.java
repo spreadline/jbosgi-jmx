@@ -37,9 +37,9 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.jboss.net.sockets.DefaultSocketFactory;
-import org.jboss.osgi.common.log.LogServiceTracker;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.log.LogService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Service Activator that registers an MBeanServer
@@ -49,7 +49,9 @@ import org.osgi.service.log.LogService;
  */
 public class JMXConnectorService
 {
-   private LogService log;
+   // Provide logging
+   private Logger log = LoggerFactory.getLogger(JMXConnectorService.class);
+   
    private JMXServiceURL serviceURL;
    private JMXConnectorServer jmxConnectorServer;
    private boolean shutdownRegistry;
@@ -57,18 +59,16 @@ public class JMXConnectorService
 
    public JMXConnectorService(BundleContext context, MBeanServer mbeanServer, String host, int rmiPort) throws IOException
    {
-      log = new LogServiceTracker(context);
-
       // check to see if registry already created
       rmiRegistry = LocateRegistry.getRegistry(host, rmiPort);
       try
       {
          rmiRegistry.list();
-         log.log(LogService.LOG_DEBUG, "RMI registry running at host=" + host + ",port=" + rmiPort);
+         log.debug("RMI registry running at host=" + host + ",port=" + rmiPort);
       }
       catch (RemoteException e)
       {
-         log.log(LogService.LOG_DEBUG, "No RMI registry running at host=" + host + ",port=" + rmiPort + ".  Will create one.");
+         log.debug("No RMI registry running at host=" + host + ",port=" + rmiPort + ".  Will create one.");
          rmiRegistry = LocateRegistry.createRegistry(rmiPort, null, new DefaultSocketFactory(InetAddress.getByName(host)));
          shutdownRegistry = true;
       }
@@ -77,7 +77,7 @@ public class JMXConnectorService
       serviceURL = getServiceURL(host, rmiPort);
       jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, null, mbeanServer);
 
-      log.log(LogService.LOG_DEBUG, "JMXConnectorServer created: " + serviceURL);
+      log.debug("JMXConnectorServer created: " + serviceURL);
    }
 
    static JMXServiceURL getServiceURL(String host, int rmiPort)
@@ -102,11 +102,11 @@ public class JMXConnectorService
 
          jmxConnectorServer.start();
 
-         log.log(LogService.LOG_DEBUG, "JMXConnectorServer started: " + serviceURL);
+         log.debug("JMXConnectorServer started: " + serviceURL);
       }
       catch (IOException ex)
       {
-         log.log(LogService.LOG_ERROR, "Cannot start JMXConnectorServer", ex);
+         log.error("Cannot start JMXConnectorServer", ex);
       }
       finally
       {
@@ -126,15 +126,15 @@ public class JMXConnectorService
          // Shutdown the registry if this service created it
          if (shutdownRegistry == true)
          {
-            log.log(LogService.LOG_DEBUG, "Shutdown RMI registry");
+            log.debug("Shutdown RMI registry");
             UnicastRemoteObject.unexportObject(rmiRegistry, true);
          }
 
-         log.log(LogService.LOG_DEBUG, "JMXConnectorServer stopped");
+         log.debug("JMXConnectorServer stopped");
       }
       catch (IOException ex)
       {
-         log.log(LogService.LOG_WARNING, "Cannot stop JMXConnectorServer", ex);
+         log.warn("Cannot stop JMXConnectorServer", ex);
       }
       finally
       {

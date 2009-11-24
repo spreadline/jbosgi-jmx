@@ -14,8 +14,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
-  <name>JBossOSGi Bundles - JMX</name>
-  <description>The JBossOSGi MBeanServer Service</description>
+  <name>JBossOSGi Reactor - JMX</name>
+  <description>The JBossOSGi Management</description>
   
   <groupId>org.jboss.osgi.bundles</groupId>
   <artifactId>jboss-osgi-jmx</artifactId>
@@ -27,13 +27,21 @@
   <parent>
     <groupId>org.jboss.osgi</groupId>
     <artifactId>jboss-osgi-parent</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
   </parent>
 
+  <!-- Subversion -->
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/jboss-osgi/projects/bundles/jmx/trunk</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/jboss-osgi/projects/bundles/jmx/trunk</developerConnection>
+    <url>http://fisheye.jboss.com/qsearch/JBossOSGi</url>
+  </scm>
+  
   <!-- Properties -->
   <properties>
     <version.jboss.osgi.common.core>2.2.13.GA</version.jboss.osgi.common.core>
     <version.jboss.osgi.jndi>1.0.1</version.jboss.osgi.jndi>
+    <version.jboss.osgi.spi>1.0.3</version.jboss.osgi.spi>
     <version.osgi>4.2.0</version.osgi>
   </properties>
   
@@ -41,13 +49,18 @@
   <dependencies>
     <dependency>
       <groupId>org.jboss.osgi.bundles</groupId>
+      <artifactId>jboss-osgi-common-core</artifactId>
+      <version>${version.jboss.osgi.common.core}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.osgi.bundles</groupId>
       <artifactId>jboss-osgi-jndi</artifactId>
       <version>${version.jboss.osgi.jndi}</version>
     </dependency>
     <dependency>
-      <groupId>org.jboss.osgi.bundles</groupId>
-      <artifactId>jboss-osgi-common-core</artifactId>
-      <version>${version.jboss.osgi.common.core}</version>
+      <groupId>org.jboss.osgi</groupId>
+      <artifactId>jboss-osgi-spi</artifactId>
+      <version>${version.jboss.osgi.spi}</version>
     </dependency>
     
     <!-- OSGi Dependencies -->
@@ -93,7 +106,11 @@
               <!-- osgi --> 
               org.osgi.framework;version=1.4,
               org.osgi.service.log,
+              org.osgi.service.packageadmin,
               org.osgi.util.tracker,
+              
+              <!-- logging -->
+              org.slf4j,
               
               <!-- FIXME optional -->
               org.jboss.osgi.jndi, 
@@ -109,14 +126,30 @@
           </instructions>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <!-- For some reason the distribution javadoc module needs this -->
+                  <file>target/${artifactId}-${version}-sources.jar</file>
+                  <classifier>sources</classifier>
+                  <type>jar</type>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-  
-  <!-- Subversion -->
-  <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/jboss-osgi/projects/bundles/jmx/trunk</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/jboss-osgi/projects/bundles/jmx/trunk</developerConnection>
-    <url>http://fisheye.jboss.com/qsearch/JBossOSGi/projects/bundles/jmx/trunk</url>
-  </scm>
   
 </project>
