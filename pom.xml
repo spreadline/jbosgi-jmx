@@ -21,7 +21,7 @@
   <artifactId>jboss-osgi-jmx</artifactId>
   <packaging>bundle</packaging>
   
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   
   <!-- Parent -->
   <parent>
@@ -40,8 +40,8 @@
   <!-- Properties -->
   <properties>
     <version.jboss.osgi.common.core>2.2.13.GA</version.jboss.osgi.common.core>
-    <version.jboss.osgi.jndi>1.0.1</version.jboss.osgi.jndi>
-    <version.jboss.osgi.spi>1.0.3</version.jboss.osgi.spi>
+    <version.jboss.osgi.jndi>1.0.2-SNAPSHOT</version.jboss.osgi.jndi>
+    <version.jboss.osgi.spi>1.0.3-SNAPSHOT</version.jboss.osgi.spi>
     <version.osgi>4.2.0</version.osgi>
   </properties>
   
@@ -99,7 +99,6 @@
               javax.naming.spi,
               
               <!-- jboss-osgi --> 
-              org.jboss.osgi.common.log;version=1.0,
               org.jboss.osgi.spi.capability;version=1.0, 
               org.jboss.osgi.spi.management;version=1.0,
               
