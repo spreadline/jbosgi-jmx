@@ -136,7 +136,7 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
    public Set<ObjectName> getBundles()
    {
       // [JBAS-6571] JMX filtering does not work with wildcards
-      // ObjectName pattern = ObjectNameFactory.create(Constants.DOMAIN_NAME + ":sname=*,*");
+      // ObjectName pattern = ObjectNameFactory.create(Constants.DOMAIN_NAME + ":name=*,*");
       // Set<ObjectName> names = mbeanServer.queryNames(pattern, null);
 
       ObjectName pattern = ObjectNameFactory.create(DOMAIN_NAME + ":*");
