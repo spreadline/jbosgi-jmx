@@ -41,7 +41,7 @@
   <properties>
     <version.jboss.osgi.common.core>2.2.13.GA</version.jboss.osgi.common.core>
     <version.jboss.osgi.jndi>1.0.2</version.jboss.osgi.jndi>
-    <version.jboss.osgi.spi>1.0.3.SP1</version.jboss.osgi.spi>
+    <version.jboss.osgi.spi>1.0.4-SNAPSHOT</version.jboss.osgi.spi>
     <version.osgi>4.2.0</version.osgi>
   </properties>
   

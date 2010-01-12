@@ -94,7 +94,7 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
    {
       ObjectName oname = null;
 
-      String namestr = DOMAIN_NAME + ":" + PROPERTY_SYMBOLIC_NAME + "=" + symbolicName + "," + PROPERTY_VERSION + "=" + version + ",*" ;
+      String namestr = DOMAIN_NAME + ":" + PROPERTY_SYMBOLIC_NAME + "=" + symbolicName + "," + PROPERTY_VERSION + "=" + version + ",*";
       Set<ObjectName> names = mbeanServer.queryNames(ObjectNameFactory.create(namestr), null);
 
       if (names.size() > 0)
@@ -194,29 +194,39 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
 
    public void refreshPackages(ObjectName[] objectNames)
    {
+      Bundle[] bundleArr = getBundles(objectNames);
       ServiceReference sref = getBundleContext().getServiceReference(PackageAdmin.class.getName());
-      if (sref != null)
+      PackageAdmin service = (PackageAdmin)getBundleContext().getService(sref);
+      service.refreshPackages(bundleArr);
+   }
+
+   public boolean resolveBundles(ObjectName[] objectNames)
+   {
+      Bundle[] bundleArr = getBundles(objectNames);
+      ServiceReference sref = getBundleContext().getServiceReference(PackageAdmin.class.getName());
+      PackageAdmin service = (PackageAdmin)getBundleContext().getService(sref);
+      return service.resolveBundles(bundleArr);
+   }
+
+   private Bundle[] getBundles(ObjectName[] objectNames)
+   {
+      Bundle[] bundleArr = null;
+      if (objectNames != null)
       {
-         PackageAdmin service = (PackageAdmin)getBundleContext().getService(sref);
+         List<String> symbolicNames = new ArrayList<String>();
+         for (ObjectName oname : objectNames)
+            symbolicNames.add(oname.getKeyProperty(PROPERTY_SYMBOLIC_NAME));
 
-         Bundle[] bundleArr = null;
-         if (objectNames != null)
+         Set<Bundle> bundleSet = new HashSet<Bundle>();
+         for (Bundle bundle : getBundleContext().getBundles())
          {
-            List<String> symbolicNames = new ArrayList<String>();
-            for (ObjectName oname : objectNames)
-               symbolicNames.add(oname.getKeyProperty(PROPERTY_SYMBOLIC_NAME));
-
-            Set<Bundle> bundleSet = new HashSet<Bundle>();
-            for (Bundle bundle : getBundleContext().getBundles())
-            {
-               if (symbolicNames.contains(bundle.getSymbolicName()))
-                  bundleSet.add(bundle);
-            }
-            bundleArr = new Bundle[bundleSet.size()];
-            bundleSet.toArray(bundleArr);
+            if (symbolicNames.contains(bundle.getSymbolicName()))
+               bundleSet.add(bundle);
          }
-         service.refreshPackages(bundleArr);
+         bundleArr = new Bundle[bundleSet.size()];
+         bundleSet.toArray(bundleArr);
       }
+      return bundleArr;
    }
 
    public void start()
