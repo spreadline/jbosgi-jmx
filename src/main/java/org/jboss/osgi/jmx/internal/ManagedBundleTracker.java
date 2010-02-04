@@ -46,13 +46,14 @@ public class ManagedBundleTracker extends BundleTracker
    // Provide logging
    private Logger log = LoggerFactory.getLogger(ManagedBundleTracker.class);
 
-   private BundleContext context;
+   private BundleContext systemContext;
    private MBeanServer mbeanServer;
 
    public ManagedBundleTracker(BundleContext context, MBeanServer mbeanServer)
    {
       super(context, Bundle.INSTALLED | Bundle.RESOLVED | Bundle.ACTIVE | Bundle.UNINSTALLED, null);
       this.mbeanServer = mbeanServer;
+      this.systemContext = context;
    }
 
    @Override
@@ -74,7 +75,7 @@ public class ManagedBundleTracker extends BundleTracker
    {
       try
       {
-         ManagedBundle mb = new ManagedBundle(context, bundle);
+         ManagedBundle mb = new ManagedBundle(systemContext, bundle);
          ObjectName oname = mb.getObjectName();
 
          if (mbeanServer.isRegistered(oname) == false)
