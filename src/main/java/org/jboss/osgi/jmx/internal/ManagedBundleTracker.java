@@ -46,6 +46,7 @@ public class ManagedBundleTracker extends BundleTracker
    // Provide logging
    private Logger log = LoggerFactory.getLogger(ManagedBundleTracker.class);
 
+   private BundleContext context;
    private MBeanServer mbeanServer;
 
    public ManagedBundleTracker(BundleContext context, MBeanServer mbeanServer)
@@ -73,7 +74,7 @@ public class ManagedBundleTracker extends BundleTracker
    {
       try
       {
-         ManagedBundle mb = new ManagedBundle(bundle);
+         ManagedBundle mb = new ManagedBundle(context, bundle);
          ObjectName oname = mb.getObjectName();
 
          if (mbeanServer.isRegistered(oname) == false)
@@ -95,9 +96,7 @@ public class ManagedBundleTracker extends BundleTracker
    {
       try
       {
-         ManagedBundle mb = new ManagedBundle(bundle);
-         ObjectName oname = mb.getObjectName();
-
+         ObjectName oname = ManagedBundle.getObjectName(bundle);
          if (mbeanServer.isRegistered(oname))
          {
             log.debug("Unregister managed bundle: " + oname);
