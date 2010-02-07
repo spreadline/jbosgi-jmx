@@ -73,6 +73,9 @@ public class ManagedBundleTracker extends BundleTracker
 
    private ManagedBundle register(Bundle bundle)
    {
+      if (log.isTraceEnabled())
+         log.trace("register(" + bundle + ")");
+
       try
       {
          ManagedBundle mb = new ManagedBundle(systemContext, bundle);
@@ -95,6 +98,9 @@ public class ManagedBundleTracker extends BundleTracker
 
    private void unregister(Bundle bundle)
    {
+      if (log.isTraceEnabled())
+         log.trace("unregister(" + bundle + ")");
+
       try
       {
          ObjectName oname = ManagedBundle.getObjectName(bundle);

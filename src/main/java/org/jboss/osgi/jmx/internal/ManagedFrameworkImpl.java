@@ -24,11 +24,12 @@ package org.jboss.osgi.jmx.internal;
 //$Id$
 
 import static org.jboss.osgi.spi.OSGiConstants.DOMAIN_NAME;
+import static org.jboss.osgi.spi.management.ManagedBundle.PROPERTY_ID;
 import static org.jboss.osgi.spi.management.ManagedBundle.PROPERTY_SYMBOLIC_NAME;
 import static org.jboss.osgi.spi.management.ManagedBundle.PROPERTY_VERSION;
-import static org.jboss.osgi.spi.management.ManagedBundle.PROPERTY_ID;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -115,6 +116,9 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
          }
       }
 
+      if (log.isTraceEnabled())
+         log.trace("getBundle(" + symbolicName + "," + version + ") => " + oname);
+
       return oname;
    }
 
@@ -129,6 +133,9 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
       if (names.size() > 0)
          oname = names.iterator().next();
 
+      if (log.isTraceEnabled())
+         log.trace("getBundle(" + bundleId + ") => " + oname);
+      
       return oname;
    }
 
@@ -141,6 +148,10 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
 
       ObjectName pattern = ObjectNameFactory.create(DOMAIN_NAME + ":*");
       Set<ObjectName> names = mbeanServer.queryNames(pattern, new IsBundleQueryExp());
+      
+      if (log.isTraceEnabled())
+         log.trace("getBundles() => " + names);
+      
       return names;
    }
 
@@ -156,7 +167,11 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
          props.put(key, sref.getProperty(key));
       }
 
-      return new ManagedServiceReference(props);
+      ManagedServiceReference msref = new ManagedServiceReference(props);
+      if (log.isTraceEnabled())
+         log.trace("getServiceReference(" + clazz + ") => " + msref);
+      
+      return msref;
    }
 
    public ManagedServiceReference[] getServiceReferences(String clazz, String filter)
@@ -185,15 +200,21 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
          }
       }
 
-      ManagedServiceReference[] manrefs = null;
+      ManagedServiceReference[] msrefs = null;
       if (foundRefs.size() > 0)
-         manrefs = foundRefs.toArray(new ManagedServiceReference[foundRefs.size()]);
+         msrefs = foundRefs.toArray(new ManagedServiceReference[foundRefs.size()]);
 
-      return manrefs;
+      if (log.isTraceEnabled())
+         log.trace("getServiceReferences(" + clazz + "," + filter +") => " + msrefs);
+      
+      return msrefs;
    }
 
    public void refreshPackages(ObjectName[] objectNames)
    {
+      if (log.isTraceEnabled())
+         log.trace("refreshPackages(" + Arrays.asList(objectNames) +")");
+      
       Bundle[] bundleArr = getBundles(objectNames);
       ServiceReference sref = getBundleContext().getServiceReference(PackageAdmin.class.getName());
       PackageAdmin service = (PackageAdmin)getBundleContext().getService(sref);
@@ -202,6 +223,9 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
 
    public boolean resolveBundles(ObjectName[] objectNames)
    {
+      if (log.isTraceEnabled())
+         log.trace("resolveBundles(" + Arrays.asList(objectNames) +")");
+      
       Bundle[] bundleArr = getBundles(objectNames);
       ServiceReference sref = getBundleContext().getServiceReference(PackageAdmin.class.getName());
       PackageAdmin service = (PackageAdmin)getBundleContext().getService(sref);
