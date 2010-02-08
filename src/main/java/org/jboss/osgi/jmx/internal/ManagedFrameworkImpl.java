@@ -213,7 +213,7 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
    public void refreshPackages(ObjectName[] objectNames)
    {
       if (log.isTraceEnabled())
-         log.trace("refreshPackages(" + Arrays.asList(objectNames) +")");
+         log.trace("refreshPackages(" + (objectNames != null ? Arrays.asList(objectNames) : null) +")");
       
       Bundle[] bundleArr = getBundles(objectNames);
       ServiceReference sref = getBundleContext().getServiceReference(PackageAdmin.class.getName());
@@ -224,7 +224,7 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
    public boolean resolveBundles(ObjectName[] objectNames)
    {
       if (log.isTraceEnabled())
-         log.trace("resolveBundles(" + Arrays.asList(objectNames) +")");
+         log.trace("resolveBundles(" + (objectNames != null ? Arrays.asList(objectNames) : null) +")");
       
       Bundle[] bundleArr = getBundles(objectNames);
       ServiceReference sref = getBundleContext().getServiceReference(PackageAdmin.class.getName());
