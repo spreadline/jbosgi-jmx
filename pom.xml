@@ -27,7 +27,7 @@
   <parent>
     <groupId>org.jboss.osgi</groupId>
     <artifactId>jboss-osgi-parent</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
 
   <!-- Subversion -->
@@ -40,8 +40,8 @@
   <!-- Properties -->
   <properties>
     <version.jboss.osgi.common.core>2.2.13.GA</version.jboss.osgi.common.core>
-    <version.jboss.osgi.jndi>1.0.2</version.jboss.osgi.jndi>
-    <version.jboss.osgi.spi>1.0.4</version.jboss.osgi.spi>
+    <version.jboss.osgi.jndi>1.0.3-SNAPSHOT</version.jboss.osgi.jndi>
+    <version.jboss.osgi.spi>1.0.5-SNAPSHOT</version.jboss.osgi.spi>
     <version.osgi>4.2.0</version.osgi>
   </properties>
   
@@ -107,9 +107,6 @@
               org.osgi.service.log,
               org.osgi.service.packageadmin,
               org.osgi.util.tracker,
-              
-              <!-- logging -->
-              org.slf4j,
               
               <!-- FIXME optional -->
               org.jboss.osgi.jndi, 

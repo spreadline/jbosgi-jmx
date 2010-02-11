@@ -28,10 +28,9 @@ import java.util.ArrayList;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
+import org.jboss.logging.Logger;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A service that registers an MBeanServer
@@ -42,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class MBeanServerService
 {
    // Provide logging
-   private Logger log = LoggerFactory.getLogger(MBeanServerService.class);
+   private static final Logger log = Logger.getLogger(MBeanServerService.class);
 
    private BundleContext context;
 

@@ -36,10 +36,9 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.jboss.logging.Logger;
 import org.jboss.net.sockets.DefaultSocketFactory;
 import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A Service Activator that registers an MBeanServer
@@ -50,7 +49,7 @@ import org.slf4j.LoggerFactory;
 public class JMXConnectorService
 {
    // Provide logging
-   private Logger log = LoggerFactory.getLogger(JMXConnectorService.class);
+   private static final Logger log = Logger.getLogger(JMXConnectorService.class);
    
    private JMXServiceURL serviceURL;
    private JMXConnectorServer jmxConnectorServer;

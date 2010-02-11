@@ -27,13 +27,12 @@ import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import org.jboss.logging.Logger;
 import org.jboss.osgi.spi.management.ManagedBundle;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.util.tracker.BundleTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Track and register/unregister bundles with the MBeanServer.
@@ -44,7 +43,7 @@ import org.slf4j.LoggerFactory;
 public class ManagedBundleTracker extends BundleTracker
 {
    // Provide logging
-   private Logger log = LoggerFactory.getLogger(ManagedBundleTracker.class);
+   private static final Logger log = Logger.getLogger(ManagedBundleTracker.class);
 
    private BundleContext systemContext;
    private MBeanServer mbeanServer;

@@ -37,13 +37,12 @@ import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
+import org.jboss.logging.Logger;
 import org.jboss.osgi.spi.management.ManagedFramework;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A BundleActivator for the MBeanServer related services
@@ -54,7 +53,7 @@ import org.slf4j.LoggerFactory;
 public class JMXServiceActivator implements BundleActivator
 {
    // Provide logging
-   private Logger log = LoggerFactory.getLogger(JMXServiceActivator.class);
+   private static final Logger log = Logger.getLogger(JMXServiceActivator.class);
    
    private JMXConnectorService jmxConnector;
    private String jmxHost;
