@@ -34,6 +34,7 @@ import org.jboss.osgi.spi.capability.Capability;
  * 
  * It is ignored if the {@link MBeanServer} is already registered.
  * 
+ * Dependent Capability: {@link JNDICapability}
  * Installed bundles: jboss-osgi-jmx.jar
  * 
  * Default properties set by this capability
@@ -59,5 +60,6 @@ public class JMXCapability extends Capability
       addDependency(new JNDICapability());
       
       addBundle("bundles/jboss-osgi-jmx.jar");
+      addBundle("bundles/org.apache.aries.jmx.jar");
    }
 }

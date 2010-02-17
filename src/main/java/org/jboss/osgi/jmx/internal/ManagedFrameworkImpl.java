@@ -23,31 +23,18 @@ package org.jboss.osgi.jmx.internal;
 
 //$Id$
 
-import static org.jboss.osgi.spi.OSGiConstants.DOMAIN_NAME;
-import static org.jboss.osgi.spi.management.ManagedBundle.PROPERTY_ID;
-import static org.jboss.osgi.spi.management.ManagedBundle.PROPERTY_SYMBOLIC_NAME;
-import static org.jboss.osgi.spi.management.ManagedBundle.PROPERTY_VERSION;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.QueryExp;
 import javax.management.StandardMBean;
 
 import org.jboss.logging.Logger;
-import org.jboss.osgi.spi.management.ManagedBundle;
 import org.jboss.osgi.spi.management.ManagedFrameworkMBean;
 import org.jboss.osgi.spi.management.ManagedServiceReference;
-import org.jboss.osgi.spi.management.ObjectNameFactory;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -80,83 +67,13 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
 
       this.context = context;
       this.mbeanServer = mbeanServer;
-
       this.bundleTracker = new ManagedBundleTracker(context, mbeanServer);
    }
 
-   public BundleContext getBundleContext()
-   {
-      return context;
-   }
-
-   @SuppressWarnings("unchecked")
-   public ObjectName getBundle(String symbolicName, String version)
-   {
-      ObjectName oname = null;
-
-      String namestr = DOMAIN_NAME + ":" + PROPERTY_SYMBOLIC_NAME + "=" + symbolicName + "," + PROPERTY_VERSION + "=" + version + ",*";
-      Set<ObjectName> names = mbeanServer.queryNames(ObjectNameFactory.create(namestr), null);
-
-      if (names.size() > 0)
-      {
-         if (names.size() > 1)
-            log.warn("Multiple bundles found: " + names);
-
-         // Use the bundle with the highest id
-         for (ObjectName aux : names)
-         {
-            if (oname == null)
-               oname = aux;
-
-            Integer bestId = new Integer(oname.getKeyProperty(PROPERTY_ID));
-            Integer auxId = new Integer(aux.getKeyProperty(PROPERTY_ID));
-            if (bestId < auxId)
-               oname = aux;
-         }
-      }
-
-      if (log.isTraceEnabled())
-         log.trace("getBundle(" + symbolicName + "," + version + ") => " + oname);
-
-      return oname;
-   }
-
-   @SuppressWarnings("unchecked")
-   public ObjectName getBundle(long bundleId)
-   {
-      ObjectName oname = null;
-
-      ObjectName pattern = ObjectNameFactory.create(DOMAIN_NAME + ":" + PROPERTY_ID + "=" + bundleId + ",*");
-      Set<ObjectName> names = mbeanServer.queryNames(pattern, null);
-
-      if (names.size() > 0)
-         oname = names.iterator().next();
-
-      if (log.isTraceEnabled())
-         log.trace("getBundle(" + bundleId + ") => " + oname);
-      
-      return oname;
-   }
-
-   @SuppressWarnings("unchecked")
-   public Set<ObjectName> getBundles()
-   {
-      // [JBAS-6571] JMX filtering does not work with wildcards
-      // ObjectName pattern = ObjectNameFactory.create(Constants.DOMAIN_NAME + ":name=*,*");
-      // Set<ObjectName> names = mbeanServer.queryNames(pattern, null);
-
-      ObjectName pattern = ObjectNameFactory.create(DOMAIN_NAME + ":*");
-      Set<ObjectName> names = mbeanServer.queryNames(pattern, new IsBundleQueryExp());
-      
-      if (log.isTraceEnabled())
-         log.trace("getBundles() => " + names);
-      
-      return names;
-   }
-
+   @Override
    public ManagedServiceReference getServiceReference(String clazz)
    {
-      ServiceReference sref = getBundleContext().getServiceReference(clazz);
+      ServiceReference sref = context.getServiceReference(clazz);
       if (sref == null)
          return null;
 
@@ -173,6 +90,7 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
       return msref;
    }
 
+   @Override
    public ManagedServiceReference[] getServiceReferences(String clazz, String filter)
    {
       List<ManagedServiceReference> foundRefs = new ArrayList<ManagedServiceReference>();
@@ -180,7 +98,7 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
       ServiceReference[] srefs;
       try
       {
-         srefs = getBundleContext().getServiceReferences(clazz, filter);
+         srefs = context.getServiceReferences(clazz, filter);
       }
       catch (InvalidSyntaxException e)
       {
@@ -209,50 +127,29 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
       return msrefs;
    }
 
-   public void refreshPackages(ObjectName[] objectNames)
+   @Override
+   public void refreshAllPackages()
    {
       if (log.isTraceEnabled())
-         log.trace("refreshPackages(" + (objectNames != null ? Arrays.asList(objectNames) : null) +")");
+         log.trace("refreshPackages(null)");
       
-      Bundle[] bundleArr = getBundles(objectNames);
-      ServiceReference sref = getBundleContext().getServiceReference(PackageAdmin.class.getName());
-      PackageAdmin service = (PackageAdmin)getBundleContext().getService(sref);
-      service.refreshPackages(bundleArr);
+      ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
+      PackageAdmin service = (PackageAdmin)context.getService(sref);
+      service.refreshPackages(null);
    }
 
-   public boolean resolveBundles(ObjectName[] objectNames)
+   @Override
+   public boolean resolveAllBundles()
    {
       if (log.isTraceEnabled())
-         log.trace("resolveBundles(" + (objectNames != null ? Arrays.asList(objectNames) : null) +")");
+         log.trace("resolveBundles(null)");
       
-      Bundle[] bundleArr = getBundles(objectNames);
-      ServiceReference sref = getBundleContext().getServiceReference(PackageAdmin.class.getName());
-      PackageAdmin service = (PackageAdmin)getBundleContext().getService(sref);
-      return service.resolveBundles(bundleArr);
+      ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
+      PackageAdmin service = (PackageAdmin)context.getService(sref);
+      return service.resolveBundles(null);
    }
 
-   private Bundle[] getBundles(ObjectName[] objectNames)
-   {
-      Bundle[] bundleArr = null;
-      if (objectNames != null)
-      {
-         List<String> symbolicNames = new ArrayList<String>();
-         for (ObjectName oname : objectNames)
-            symbolicNames.add(oname.getKeyProperty(PROPERTY_SYMBOLIC_NAME));
-
-         Set<Bundle> bundleSet = new HashSet<Bundle>();
-         for (Bundle bundle : getBundleContext().getBundles())
-         {
-            if (symbolicNames.contains(bundle.getSymbolicName()))
-               bundleSet.add(bundle);
-         }
-         bundleArr = new Bundle[bundleSet.size()];
-         bundleSet.toArray(bundleArr);
-      }
-      return bundleArr;
-   }
-
-   public void start()
+   void start()
    {
       // Start tracking the bundles
       bundleTracker.open();
@@ -271,7 +168,7 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
       }
    }
 
-   public void stop()
+   void stop()
    {
       try
       {
@@ -281,21 +178,6 @@ public class ManagedFrameworkImpl implements ManagedFrameworkMBean
       catch (JMException ex)
       {
          log.warn("Cannot register: " + ManagedFrameworkMBean.MBEAN_MANAGED_FRAMEWORK);
-      }
-   }
-
-   // Accept names like "jboss.osgi:id=*"
-   static class IsBundleQueryExp implements QueryExp
-   {
-      private static final long serialVersionUID = 1L;
-
-      public boolean apply(ObjectName name)
-      {
-         return name.getKeyProperty(ManagedBundle.PROPERTY_SYMBOLIC_NAME) != null;
-      }
-
-      public void setMBeanServer(MBeanServer server)
-      {
       }
    }
 }

@@ -130,13 +130,13 @@ public class RMIAdaptor implements MBeanServerConnection, Serializable
       return delegate.isRegistered(name);
    }
 
-   @SuppressWarnings({ "rawtypes" })
+   @SuppressWarnings({ "rawtypes", "unchecked" })
    public Set queryMBeans(ObjectName name, QueryExp query) throws IOException
    {
       return delegate.queryMBeans(name, query);
    }
 
-   @SuppressWarnings({ "rawtypes" })
+   @SuppressWarnings({ "rawtypes", "unchecked" })
    public Set queryNames(ObjectName name, QueryExp query) throws IOException
    {
       return delegate.queryNames(name, query);

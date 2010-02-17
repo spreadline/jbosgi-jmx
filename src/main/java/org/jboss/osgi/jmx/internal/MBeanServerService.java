@@ -50,7 +50,6 @@ public class MBeanServerService
       this.context = context;
    }
 
-   @SuppressWarnings("unchecked")
    public MBeanServer registerMBeanServer()
    {
       MBeanServer mbeanServer = null;
