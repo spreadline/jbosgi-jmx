@@ -14,12 +14,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
-  <name>JBossOSGi Reactor - JMX</name>
+  <name>JBossOSGi - JMX</name>
   <description>The JBossOSGi Management</description>
   
-  <groupId>org.jboss.osgi.bundles</groupId>
-  <artifactId>jboss-osgi-jmx</artifactId>
-  <packaging>bundle</packaging>
+  <groupId>org.jboss.osgi.jmx</groupId>
+  <artifactId>jboss-osgi-jmx-parent</artifactId>
+  <packaging>pom</packaging>
   
   <version>1.0.4-SNAPSHOT</version>
   
@@ -45,105 +45,41 @@
     <version.osgi>4.2.0</version.osgi>
   </properties>
   
+  <modules>
+    <module>jmx-bundle</module>
+  </modules>
+  
   <!-- Dependencies -->
-  <dependencies>
-    <dependency>
-      <groupId>org.jboss.osgi.bundles</groupId>
-      <artifactId>jboss-osgi-common-core</artifactId>
-      <version>${version.jboss.osgi.common.core}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.osgi.bundles</groupId>
-      <artifactId>jboss-osgi-jndi</artifactId>
-      <version>${version.jboss.osgi.jndi}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.aries.jmx</groupId>
-      <artifactId>org.apache.aries.jmx.api</artifactId>
-      <version>${version.apache.aries.jmx}</version>
-    </dependency>
-    
-    <!-- OSGi Dependencies -->
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-      <version>${version.osgi}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>
-      <version>${version.osgi}</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Bundle-SymbolicName>${artifactId}</Bundle-SymbolicName>
-            <Bundle-Activator>org.jboss.osgi.jmx.internal.JMXServiceActivator</Bundle-Activator>
-            <Export-Package>
-              org.jboss.osgi.jmx;version=${version}
-            </Export-Package>
-            <Import-Package>
-            
-              <!-- system -->
-              javax.management*,
-              javax.naming, 
-              javax.naming.spi,
-              
-              <!-- jboss-osgi --> 
-              org.jboss.osgi.spi*;version="[1.0,2.0)", 
-              
-              <!-- osgi --> 
-              org.osgi.framework;version="[1.5,2.0)",
-              org.osgi.service.packageadmin;version="[1.2,2.0)",
-              org.osgi.util.tracker;version="[1.4,2.0)",
-              
-              <!-- FIXME: make optional
-              org.jboss.osgi.jndi;resolution:=optional, 
-              org.jboss.net.sockets;resolution:=optional,
-              org.jnp.interfaces;resolution:=optional,
-              -->
-              org.jboss.osgi.jndi;version="[1.0,2.0)", 
-              org.jboss.net.sockets;version="[2.2,3.0)",
-              org.jnp.interfaces;version="[5.0,6.0)",
-              
-            </Import-Package>
-            <DynamicImport-Package>*</DynamicImport-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <!-- For some reason the distribution javadoc module needs this -->
-                  <file>target/${artifactId}-${version}-sources.jar</file>
-                  <classifier>sources</classifier>
-                  <type>jar</type>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jboss.osgi.bundles</groupId>
+        <artifactId>jboss-osgi-common-core</artifactId>
+        <version>${version.jboss.osgi.common.core}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.osgi.bundles</groupId>
+        <artifactId>jboss-osgi-jndi</artifactId>
+        <version>${version.jboss.osgi.jndi}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.aries.jmx</groupId>
+        <artifactId>org.apache.aries.jmx.api</artifactId>
+        <version>${version.apache.aries.jmx}</version>
+      </dependency>
+      
+      <!-- OSGi Dependencies -->
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <version>${version.osgi}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.compendium</artifactId>
+        <version>${version.osgi}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   
 </project>
