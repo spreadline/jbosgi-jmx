@@ -31,12 +31,17 @@
   <!-- Dependencies -->
   <dependencies>
     <dependency>
+      <groupId>org.jboss.osgi.jmx</groupId>
+      <artifactId>jboss-osgi-jmx-api</artifactId>
+      <version>${version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.osgi.bundles</groupId>
       <artifactId>jboss-osgi-common-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jboss.osgi.bundles</groupId>
-      <artifactId>jboss-osgi-jndi</artifactId>
+      <groupId>org.jboss.osgi.jndi</groupId>
+      <artifactId>jboss-osgi-jndi-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.aries.jmx</groupId>
@@ -76,8 +81,13 @@
               javax.naming, 
               javax.naming.spi,
               
+              <!-- logging -->
+              org.jboss.logging;version="[2.1,3.0)", 
+              
               <!-- jboss-osgi --> 
               org.jboss.osgi.spi*;version="[1.0,2.0)", 
+              org.jboss.osgi.jmx;version="[1.0,2.0)", 
+              org.jboss.osgi.jndi;version="[1.0,2.0)", 
               
               <!-- osgi --> 
               org.osgi.framework;version="[1.5,2.0)",
@@ -89,12 +99,17 @@
               org.jboss.net.sockets;resolution:=optional,
               org.jnp.interfaces;resolution:=optional,
               -->
-              org.jboss.osgi.jndi;version="[1.0,2.0)", 
               org.jboss.net.sockets;version="[2.2,3.0)",
               org.jnp.interfaces;version="[5.0,6.0)",
               
             </Import-Package>
-            <DynamicImport-Package>*</DynamicImport-Package>
+            <Embed-Dependency>
+              jboss-osgi-jmx-api;inline=false
+            </Embed-Dependency>
+            <_exportcontents>
+              org.jboss.osgi.jmx;version=${version}
+            </_exportcontents>
+            <!-- DynamicImport-Package>*</DynamicImport-Package -->
           </instructions>
         </configuration>
       </plugin>

@@ -42,10 +42,12 @@
     <version.apache.aries.jmx>1.0.0-incubating-SNAPSHOT</version.apache.aries.jmx>
     <version.jboss.osgi.common.core>2.2.13.GA</version.jboss.osgi.common.core>
     <version.jboss.osgi.jndi>1.0.3-SNAPSHOT</version.jboss.osgi.jndi>
+    <version.jboss.osgi.spi>1.0.5-SNAPSHOT</version.jboss.osgi.spi>
     <version.osgi>4.2.0</version.osgi>
   </properties>
   
   <modules>
+    <module>jmx-api</module>
     <module>jmx-bundle</module>
   </modules>
   
@@ -53,13 +55,18 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.jboss.osgi</groupId>
+        <artifactId>jboss-osgi-spi</artifactId>
+        <version>${version.jboss.osgi.spi}</version>
+      </dependency>
+      <dependency>
         <groupId>org.jboss.osgi.bundles</groupId>
         <artifactId>jboss-osgi-common-core</artifactId>
         <version>${version.jboss.osgi.common.core}</version>
       </dependency>
       <dependency>
-        <groupId>org.jboss.osgi.bundles</groupId>
-        <artifactId>jboss-osgi-jndi</artifactId>
+        <groupId>org.jboss.osgi.jndi</groupId>
+        <artifactId>jboss-osgi-jndi-api</artifactId>
         <version>${version.jboss.osgi.jndi}</version>
       </dependency>
       <dependency>
