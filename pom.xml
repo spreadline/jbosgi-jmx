@@ -14,12 +14,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
-  <name>JBossOSGi - JMX Bundle</name>
+  <name>JBossOSGi - JMX API</name>
   <description>The JBossOSGi Management</description>
   
   <groupId>org.jboss.osgi.jmx</groupId>
-  <artifactId>jboss-osgi-jmx</artifactId>
-  <packaging>bundle</packaging>
+  <artifactId>jboss-osgi-jmx-api</artifactId>
+  <packaging>jar</packaging>
   
   <!-- Parent -->
   <parent>
@@ -31,12 +31,12 @@
   <!-- Dependencies -->
   <dependencies>
     <dependency>
-      <groupId>org.jboss.osgi.bundles</groupId>
-      <artifactId>jboss-osgi-common-core</artifactId>
+      <groupId>org.jboss.osgi</groupId>
+      <artifactId>jboss-osgi-spi</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jboss.osgi.bundles</groupId>
-      <artifactId>jboss-osgi-jndi</artifactId>
+      <groupId>org.jboss.osgi.jndi</groupId>
+      <artifactId>jboss-osgi-jndi-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.aries.jmx</groupId>
@@ -58,69 +58,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Bundle-SymbolicName>${artifactId}</Bundle-SymbolicName>
-            <Bundle-Activator>org.jboss.osgi.jmx.internal.JMXServiceActivator</Bundle-Activator>
-            <Export-Package>
-              org.jboss.osgi.jmx;version=${version}
-            </Export-Package>
-            <Import-Package>
-            
-              <!-- system -->
-              javax.management*,
-              javax.naming, 
-              javax.naming.spi,
-              
-              <!-- jboss-osgi --> 
-              org.jboss.osgi.spi*;version="[1.0,2.0)", 
-              
-              <!-- osgi --> 
-              org.osgi.framework;version="[1.5,2.0)",
-              org.osgi.service.packageadmin;version="[1.2,2.0)",
-              org.osgi.util.tracker;version="[1.4,2.0)",
-              
-              <!-- FIXME: make optional
-              org.jboss.osgi.jndi;resolution:=optional, 
-              org.jboss.net.sockets;resolution:=optional,
-              org.jnp.interfaces;resolution:=optional,
-              -->
-              org.jboss.osgi.jndi;version="[1.0,2.0)", 
-              org.jboss.net.sockets;version="[2.2,3.0)",
-              org.jnp.interfaces;version="[5.0,6.0)",
-              
-            </Import-Package>
-            <DynamicImport-Package>*</DynamicImport-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <!-- For some reason the distribution javadoc module needs this -->
-                  <file>target/${artifactId}-${version}-sources.jar</file>
-                  <classifier>sources</classifier>
-                  <type>jar</type>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
   
