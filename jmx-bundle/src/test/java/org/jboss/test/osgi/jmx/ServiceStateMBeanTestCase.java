@@ -32,6 +32,9 @@ import javax.management.openmbean.TabularData;
 
 import org.jboss.osgi.jmx.ServiceStateMBeanExt;
 import org.junit.Test;
+import org.osgi.framework.Constants;
+import org.osgi.jmx.JmxConstants;
+import org.osgi.jmx.framework.ServiceStateMBean;
 
 /**
  * A test that excercises the ServiceStateMBean
@@ -53,8 +56,17 @@ public class ServiceStateMBeanTestCase extends AbstractJMXTestCase
    public void getService() throws Exception
    {
       ServiceStateMBeanExt serviceState = getServiceState();
-      CompositeData data = serviceState.getService(MBeanServer.class.getName());
-      assertNotNull("MBeanServer service not null", data);
+      CompositeData serviceData = serviceState.getService(MBeanServer.class.getName());
+      assertNotNull("MBeanServer service not null", serviceData);
+      
+      Long serviceId = (Long)serviceData.get(ServiceStateMBean.IDENTIFIER);
+      assertNotNull("service.id not null", serviceId);
+      
+      TabularData props = serviceState.getProperties(serviceId);
+      assertNotNull("Properties not null", props);
+      
+      CompositeData idData = props.get(new Object[] { Constants.SERVICE_ID });
+      assertEquals(serviceId.toString(), idData.get(JmxConstants.VALUE));
    }
 
    @Test
