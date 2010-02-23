@@ -19,22 +19,34 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.osgi.jmx;
+package org.jboss.test.osgi.jmx;
 
 //$Id$
 
+import static org.junit.Assert.assertTrue;
+
+import javax.management.ObjectName;
+
+import org.jboss.osgi.jmx.FrameworkMBeanExt;
+import org.jboss.osgi.spi.management.ObjectNameFactory;
+import org.junit.Test;
+import org.osgi.jmx.framework.FrameworkMBean;
+
 /**
- * The JMX service contants
+ * A test that excercises the FramworkMBean
  * 
  * @author thomas.diesler@jboss.com
- * @since 24-Apr-2009
+ * @since 23-Feb-2010
  */
-public interface Constants
+public class FrameworkMBeanTestCase extends AbstractJMXTestCase
 {
-   /** The property that sets the host that the RMIAdaptor binds to: org.jboss.osgi.jmx.host */
-   String REMOTE_JMX_HOST = "org.jboss.osgi.jmx.host";
-   /** The property that sets the port that the RMIAdaptor binds to: org.jboss.osgi.jmx.port */
-   String REMOTE_JMX_RMI_PORT = "org.jboss.osgi.jmx.rmi.port";
-   /** The property that sets the JNDI name the RMIAdaptor binds to: org.jboss.osgi.jmx.rmi.adaptor */
-   String REMOTE_JMX_RMI_ADAPTOR = "org.jboss.osgi.jmx.rmi.adaptor";
+   @Test
+   public void testMBeanAccess() throws Exception
+   {
+      ObjectName oname = ObjectNameFactory.create(FrameworkMBean.OBJECTNAME);
+      assertTrue("Registerd " + oname, getMBeanServer().isRegistered(oname));
+      
+      oname = ObjectNameFactory.create(FrameworkMBeanExt.OBJECTNAME);
+      assertTrue("Registerd " + oname, getMBeanServer().isRegistered(oname));
+   }
 }

@@ -48,6 +48,38 @@
       <artifactId>org.apache.aries.jmx.api</artifactId>
     </dependency>
     
+    <!-- Provided Dependencies -->
+    <dependency>
+      <groupId>org.jboss.osgi.bundles</groupId>
+      <artifactId>jboss-osgi-common</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.osgi.jndi</groupId>
+      <artifactId>jboss-osgi-jndi</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.aries.jmx</groupId>
+      <artifactId>org.apache.aries.jmx</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.log</artifactId>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.osgi.core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.osgi.compendium</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
     <!-- OSGi Dependencies -->
     <dependency>
       <groupId>org.osgi</groupId>
@@ -58,6 +90,23 @@
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
       <scope>provided</scope>
+    </dependency>
+    
+    <!-- Test Dependencies -->
+    <dependency>
+      <groupId>org.jboss.osgi.runtime</groupId>
+      <artifactId>jboss-osgi-runtime-felix</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging-log4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -91,6 +140,7 @@
               
               <!-- osgi --> 
               org.osgi.framework;version="[1.5,2.0)",
+              org.osgi.jmx.framework;version="[1.0,2.0)", 
               org.osgi.service.packageadmin;version="[1.2,2.0)",
               org.osgi.util.tracker;version="[1.4,2.0)",
               
@@ -114,24 +164,75 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
+        <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
+            <id>bundles</id>
+            <phase>test-compile</phase>
             <goals>
-              <goal>attach-artifact</goal>
+              <goal>directory-single</goal>
             </goals>
             <configuration>
-              <artifacts>
-                <artifact>
-                  <!-- For some reason the distribution javadoc module needs this -->
-                  <file>target/${artifactId}-${version}-sources.jar</file>
-                  <classifier>sources</classifier>
-                  <type>jar</type>
-                </artifact>
-              </artifacts>
+              <finalName>test-libs</finalName>
+              <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>scripts/assembly-bundles.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>build-test-jars</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <property name="maven.runtime.classpath" refid="maven.runtime.classpath" />
+                <property name="artifactId" value="${artifactId}" />
+                <property name="tests.output.dir" value="${project.build.directory}" />
+                <property name="build.artifact" value="${project.build.finalName}" />
+                <ant antfile="scripts/antrun-test-jars.xml" />
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+        <executions>
+          <execution>
+            <id>surefire-integration-tests</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>false</skip>
+              <argLine>${surefire.jpda.args}</argLine>
+              <systemProperties>
+                <property>
+                  <name>java.protocol.handler.pkgs</name>
+                  <value>org.jboss.net.protocol|org.jboss.virtual.protocol</value>
+                </property>
+                <property>
+                  <name>log4j.output.dir</name>
+                  <value>${project.build.directory}</value>
+                </property>
+                <property>
+                  <name>test.archive.directory</name>
+                  <value>${project.build.directory}/test-libs</value>
+                </property>
+              </systemProperties>
             </configuration>
           </execution>
         </executions>
@@ -139,4 +240,25 @@
     </plugins>
   </build>
   
+  <!-- Profiles -->
+  <profiles>
+
+    <!--
+      Name: jpda
+      Descr: Enable JPDA remote debuging
+    -->
+    <profile>
+      <id>jpda</id>
+      <activation>
+        <property>
+          <name>jpda</name>
+        </property>
+      </activation>
+      <properties>
+        <surefire.jpda.args>-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y</surefire.jpda.args>
+      </properties>
+    </profile>
+
+  </profiles>
+
 </project>

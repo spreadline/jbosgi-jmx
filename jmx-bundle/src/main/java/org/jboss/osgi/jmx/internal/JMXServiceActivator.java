@@ -23,10 +23,6 @@ package org.jboss.osgi.jmx.internal;
 
 //$Id$
 
-import static org.jboss.osgi.jmx.Constants.REMOTE_JMX_HOST;
-import static org.jboss.osgi.jmx.Constants.REMOTE_JMX_RMI_ADAPTOR;
-import static org.jboss.osgi.jmx.Constants.REMOTE_JMX_RMI_PORT;
-
 import java.io.IOException;
 
 import javax.management.MBeanServer;
@@ -38,7 +34,7 @@ import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
 import org.jboss.logging.Logger;
-import org.jboss.osgi.spi.management.ManagedFramework;
+import org.jboss.osgi.jmx.JMXConstantsExt;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -60,7 +56,9 @@ public class JMXServiceActivator implements BundleActivator
    private String jmxRmiPort;
    private String rmiAdaptorPath;
    private MBeanServer mbeanServer;
-   private ManagedFrameworkImpl managedFramework;
+   private FrameworkImpl framework;
+   private ServiceStateImpl serviceState;
+   private ManagedBundleTracker bundleTracker;
 
    public void start(BundleContext context)
    {
@@ -71,20 +69,27 @@ public class JMXServiceActivator implements BundleActivator
       // Get the system BundleContext
       BundleContext sysContext = context.getBundle(0).getBundleContext();
 
-      // Register the ManagedFramework 
-      managedFramework = new ManagedFrameworkImpl(sysContext, mbeanServer);
-      context.registerService(ManagedFramework.class.getName(), managedFramework, null);
-      managedFramework.start();
+      // Register the FrameworkMBean
+      framework = new FrameworkImpl(sysContext, mbeanServer);
+      framework.start();
 
-      jmxHost = context.getProperty(REMOTE_JMX_HOST);
+      // Register the ServiceStateMBean 
+      serviceState = new ServiceStateImpl(sysContext, mbeanServer);
+      serviceState.start();
+      
+      // Start tracking the bundles
+      bundleTracker = new ManagedBundleTracker(sysContext, mbeanServer);
+      bundleTracker.open();
+
+      jmxHost = context.getProperty(JMXConstantsExt.REMOTE_JMX_HOST);
       if (jmxHost == null)
          jmxHost = "localhost";
 
-      jmxRmiPort = context.getProperty(REMOTE_JMX_RMI_PORT);
+      jmxRmiPort = context.getProperty(JMXConstantsExt.REMOTE_JMX_RMI_PORT);
       if (jmxRmiPort == null)
          jmxRmiPort = "1098";
 
-      rmiAdaptorPath = context.getProperty(REMOTE_JMX_RMI_ADAPTOR);
+      rmiAdaptorPath = context.getProperty(JMXConstantsExt.REMOTE_JMX_RMI_ADAPTOR);
       if (rmiAdaptorPath == null)
          rmiAdaptorPath = "jmx/invoker/RMIAdaptor";
 
@@ -95,8 +100,14 @@ public class JMXServiceActivator implements BundleActivator
 
    public void stop(BundleContext context)
    {
-      // Unregister the managed framework
-      managedFramework.stop();
+      // Unregister the FrameworkMBean
+      framework.stop();
+
+      // Unregister the ServiceStateMBean
+      serviceState.stop();
+
+      // Stop tracking the bundles
+      bundleTracker.close();
 
       if (jmxConnector != null)
       {
