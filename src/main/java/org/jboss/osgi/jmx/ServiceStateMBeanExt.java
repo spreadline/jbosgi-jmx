@@ -23,18 +23,36 @@ package org.jboss.osgi.jmx;
 
 //$Id$
 
+import java.io.IOException;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+
+import org.osgi.jmx.framework.ServiceStateMBean;
+
+
 /**
- * The JMX service contants
+ * An extension to {@link ServiceStateMBean}.
  * 
  * @author thomas.diesler@jboss.com
- * @since 24-Apr-2009
+ * @since 04-Mar-2009
  */
-public interface Constants
+public interface ServiceStateMBeanExt extends ServiceStateMBean
 {
-   /** The property that sets the host that the RMIAdaptor binds to: org.jboss.osgi.jmx.host */
-   String REMOTE_JMX_HOST = "org.jboss.osgi.jmx.host";
-   /** The property that sets the port that the RMIAdaptor binds to: org.jboss.osgi.jmx.port */
-   String REMOTE_JMX_RMI_PORT = "org.jboss.osgi.jmx.rmi.port";
-   /** The property that sets the JNDI name the RMIAdaptor binds to: org.jboss.osgi.jmx.rmi.adaptor */
-   String REMOTE_JMX_RMI_ADAPTOR = "org.jboss.osgi.jmx.rmi.adaptor";
+   /** The default object name: jboss.osgi:service=jmx,type=ServiceState */
+   String OBJECTNAME = "jboss.osgi:service=jmx,type=ServiceState";
+
+   /**
+    * Returns a ServiceReference object for a service that implements and was registered 
+    * under the specified class.
+    */
+   CompositeData getService(String clazz) throws IOException;
+   
+   /**
+    * Returns an array of ManagedServiceReference objects. 
+    * The returned array of ManagedServiceReference objects contains services 
+    * that were registered under the specified class, match the specified filter criteria, 
+    * and the packages for the class names under which the services were registered.
+    */
+   TabularData getServices(String clazz, String filter) throws IOException;
 }
