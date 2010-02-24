@@ -37,6 +37,7 @@ import org.jboss.osgi.spi.management.MBeanProxy;
 import org.jboss.osgi.spi.management.ObjectNameFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.launch.Framework;
 import org.osgi.jmx.framework.BundleStateMBean;
 
@@ -46,7 +47,7 @@ import org.osgi.jmx.framework.BundleStateMBean;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2010
  */
-public abstract class AbstractJMXTestCase
+public abstract class AbstractTestCase
 {
    private static Framework framework;
    private MBeanServer server;
@@ -69,19 +70,24 @@ public abstract class AbstractJMXTestCase
       }
    }
 
-   public FrameworkMBeanExt getFramework() throws Exception
+   protected BundleContext getSystemContext()
+   {
+      return framework.getBundleContext();
+   }
+   
+   protected FrameworkMBeanExt getFrameworkMBean() throws Exception
    {
       ObjectName oname = ObjectNameFactory.create(FrameworkMBeanExt.OBJECTNAME);
       return MBeanProxy.get(getMBeanServer(), oname, FrameworkMBeanExt.class);
    }
    
-   public BundleStateMBean getBundleState() throws Exception
+   protected BundleStateMBean getBundleStateMBean() throws Exception
    {
       ObjectName oname = ObjectNameFactory.create(BundleStateMBean.OBJECTNAME);
       return MBeanProxy.get(getMBeanServer(), oname, BundleStateMBean.class);
    }
    
-   public ServiceStateMBeanExt getServiceState() throws Exception
+   protected ServiceStateMBeanExt getServiceStateMBean() throws Exception
    {
       ObjectName oname = ObjectNameFactory.create(ServiceStateMBeanExt.OBJECTNAME);
       return MBeanProxy.get(getMBeanServer(), oname, ServiceStateMBeanExt.class);

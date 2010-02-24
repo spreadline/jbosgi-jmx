@@ -33,6 +33,7 @@ import javax.management.openmbean.TabularData;
 import org.jboss.osgi.jmx.ServiceStateMBeanExt;
 import org.junit.Test;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 import org.osgi.jmx.JmxConstants;
 import org.osgi.jmx.framework.ServiceStateMBean;
 
@@ -42,20 +43,22 @@ import org.osgi.jmx.framework.ServiceStateMBean;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2010
  */
-public class ServiceStateMBeanTestCase extends AbstractJMXTestCase
+public class ServiceStateTestCase extends AbstractTestCase
 {
    @Test
-   public void listBundles() throws Exception
+   public void listServices() throws Exception
    {
-      ServiceStateMBeanExt serviceState = getServiceState();
+      ServiceReference[] srefs = getSystemContext().getServiceReferences(null, null);
+      
+      ServiceStateMBeanExt serviceState = getServiceStateMBean();
       TabularData data = serviceState.listServices();
-      assertEquals("Number of services", 7, data.size());
+      assertEquals("Number of services", srefs.length, data.size());
    }
 
    @Test
    public void getService() throws Exception
    {
-      ServiceStateMBeanExt serviceState = getServiceState();
+      ServiceStateMBeanExt serviceState = getServiceStateMBean();
       CompositeData serviceData = serviceState.getService(MBeanServer.class.getName());
       assertNotNull("MBeanServer service not null", serviceData);
       
@@ -72,8 +75,11 @@ public class ServiceStateMBeanTestCase extends AbstractJMXTestCase
    @Test
    public void getServices() throws Exception
    {
-      ServiceStateMBeanExt serviceState = getServiceState();
-      TabularData data = serviceState.getServices(MBeanServer.class.getName(), null);
+      ServiceReference sref = getSystemContext().getServiceReference(MBeanServer.class.getName());
+      Long serviceID = (Long)sref.getProperty(Constants.SERVICE_ID);
+      
+      ServiceStateMBeanExt serviceState = getServiceStateMBean();
+      TabularData data = serviceState.getServices(null, "(service.id=" + serviceID + ")");
       assertEquals("MBeanServer service not null", 1, data.size());
    }
 }

@@ -23,36 +23,30 @@ package org.jboss.test.osgi.jmx;
 
 //$Id$
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import javax.management.ObjectName;
-import javax.management.openmbean.TabularData;
 
+import org.jboss.osgi.jmx.FrameworkMBeanExt;
 import org.jboss.osgi.spi.management.ObjectNameFactory;
 import org.junit.Test;
-import org.osgi.jmx.framework.BundleStateMBean;
+import org.osgi.jmx.framework.FrameworkMBean;
 
 /**
- * A test that excercises the BundleStateMBean
+ * A test that excercises the FramworkMBean
  * 
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2010
  */
-public class BundleStateMBeanTestCase extends AbstractJMXTestCase
+public class FrameworkTestCase extends AbstractTestCase
 {
    @Test
    public void testMBeanAccess() throws Exception
    {
-      ObjectName oname = ObjectNameFactory.create(BundleStateMBean.OBJECTNAME);
+      ObjectName oname = ObjectNameFactory.create(FrameworkMBean.OBJECTNAME);
       assertTrue("Registerd " + oname, getMBeanServer().isRegistered(oname));
-   }
-   
-   @Test
-   public void listBundles() throws Exception
-   {
-      BundleStateMBean bundleState = getBundleState();
-      TabularData data = bundleState.listBundles();
-      assertEquals("Number of bundles", 8, data.size());
+      
+      oname = ObjectNameFactory.create(FrameworkMBeanExt.OBJECTNAME);
+      assertTrue("Registerd " + oname, getMBeanServer().isRegistered(oname));
    }
 }

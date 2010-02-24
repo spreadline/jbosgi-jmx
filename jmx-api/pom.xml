@@ -35,10 +35,6 @@
       <artifactId>jboss-osgi-spi</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jboss.osgi.jndi</groupId>
-      <artifactId>jboss-osgi-jndi-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.aries.jmx</groupId>
       <artifactId>org.apache.aries.jmx.api</artifactId>
     </dependency>
