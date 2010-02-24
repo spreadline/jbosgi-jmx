@@ -26,6 +26,7 @@ package org.jboss.osgi.jmx;
 import javax.management.MBeanServer;
 
 import org.jboss.osgi.spi.capability.Capability;
+import org.jboss.osgi.spi.capability.CompendiumCapability;
 
 /**
  * Adds the JMX capability to the {@link OSGiRuntime}
@@ -54,6 +55,8 @@ public class JMXCapability extends Capability
       
       addSystemProperty("org.jboss.osgi.jmx.host", System.getProperty("jboss.bind.address", "localhost"));
       addSystemProperty("org.jboss.osgi.jmx.rmi.port", "1198");
+      
+      addDependency(new CompendiumCapability());
       
       addBundle("bundles/jboss-osgi-jmx.jar");
       addBundle("bundles/org.apache.aries.jmx.jar");
