@@ -93,7 +93,7 @@ public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
    {
       BundleContext context = assertBundleContext(bundleId);
       File dataFile = context.getDataFile(filename);
-      return dataFile.getCanonicalPath();
+      return dataFile != null ? dataFile.getCanonicalPath() : null;
    }
 
    @Override
@@ -101,7 +101,15 @@ public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
    {
       Bundle bundle = assertBundle(bundleId);
       URL entry = bundle.getEntry(path);
-      return entry.toExternalForm();
+      return entry != null ? entry.toExternalForm() : null;
+   }
+
+   @Override
+   public String getResource(long bundleId, String name) throws IOException
+   {
+      Bundle bundle = assertBundle(bundleId);
+      URL resource = bundle.getResource(name);
+      return resource != null ? resource.toExternalForm() : null;
    }
 
    @Override
@@ -147,14 +155,6 @@ public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
    }
 
    @Override
-   public String getResource(long bundleId, String name) throws IOException
-   {
-      Bundle bundle = assertBundle(bundleId);
-      URL entry = bundle.getResource(name);
-      return entry.toExternalForm();
-   }
-
-   @Override
    public long loadClass(long bundleId, String name) throws ClassNotFoundException, IOException
    {
       Bundle bundle = assertBundle(bundleId);
@@ -162,10 +162,7 @@ public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
       ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
       PackageAdmin service = (PackageAdmin)context.getService(sref);
       Bundle exporter = service.getBundle(clazz);
-      if (exporter == null)
-         return 0;
-
-      return exporter.getBundleId();
+      return exporter != null ? exporter.getBundleId() : 0;
    }
 
    public String[] getExportedPackages(long arg0) throws IOException
