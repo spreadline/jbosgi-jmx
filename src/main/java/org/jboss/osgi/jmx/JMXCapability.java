@@ -25,7 +25,6 @@ package org.jboss.osgi.jmx;
 
 import javax.management.MBeanServer;
 
-import org.jboss.osgi.jndi.JNDICapability;
 import org.jboss.osgi.spi.capability.Capability;
 
 /**
@@ -34,7 +33,6 @@ import org.jboss.osgi.spi.capability.Capability;
  * 
  * It is ignored if the {@link MBeanServer} is already registered.
  * 
- * Dependent Capability: {@link JNDICapability}
  * Installed bundles: jboss-osgi-jmx.jar
  * 
  * Default properties set by this capability
@@ -56,8 +54,6 @@ public class JMXCapability extends Capability
       
       addSystemProperty("org.jboss.osgi.jmx.host", System.getProperty("jboss.bind.address", "localhost"));
       addSystemProperty("org.jboss.osgi.jmx.rmi.port", "1198");
-      
-      addDependency(new JNDICapability());
       
       addBundle("bundles/jboss-osgi-jmx.jar");
       addBundle("bundles/org.apache.aries.jmx.jar");
