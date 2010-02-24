@@ -25,15 +25,13 @@ package org.jboss.osgi.jmx.internal;
 
 import java.io.IOException;
 
-import javax.management.JMException;
 import javax.management.MBeanServer;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.management.openmbean.CompositeData;
 
-import org.jboss.logging.Logger;
 import org.jboss.osgi.jmx.FrameworkMBeanExt;
-import org.jboss.osgi.spi.management.MBeanProxy;
 import org.jboss.osgi.spi.management.ObjectNameFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -46,35 +44,29 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2009
  */
-public class FrameworkImpl implements FrameworkMBeanExt
+public class FrameworkState extends AbstractStateMBean implements FrameworkMBeanExt
 {
-   // Provide logging
-   private static final Logger log = Logger.getLogger(FrameworkImpl.class);
-
-   private MBeanServer mbeanServer;
-   private BundleContext context;
-   private FrameworkMBean delegate;
-
-   public FrameworkImpl(BundleContext context, MBeanServer mbeanServer)
+   
+   public FrameworkState(BundleContext context, MBeanServer mbeanServer)
    {
-      if (context == null)
-         throw new IllegalArgumentException("Null BundleContext");
-      if (mbeanServer == null)
-         throw new IllegalArgumentException("Null MBeanServer");
+      super(context, mbeanServer);
+   }
 
-      if (context.getBundle().getBundleId() != 0)
-         throw new IllegalArgumentException("Not the system bundle context: " + context);
+   @Override
+   ObjectName getObjectName()
+   {
+      return ObjectNameFactory.create(OBJECTNAME);
+   }
 
-      this.context = context;
-      this.mbeanServer = mbeanServer;
+   @Override
+   StandardMBean getStandardMBean() throws NotCompliantMBeanException
+   {
+      return new StandardMBean(this, FrameworkMBeanExt.class);
    }
 
    @Override
    public void refreshAllPackages()
    {
-      if (log.isTraceEnabled())
-         log.trace("refreshPackages(null)");
-
       ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
       PackageAdmin service = (PackageAdmin)context.getService(sref);
       service.refreshPackages(null);
@@ -83,40 +75,9 @@ public class FrameworkImpl implements FrameworkMBeanExt
    @Override
    public boolean resolveAllBundles()
    {
-      if (log.isTraceEnabled())
-         log.trace("resolveBundles(null)");
-
       ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
       PackageAdmin service = (PackageAdmin)context.getService(sref);
       return service.resolveBundles(null);
-   }
-
-   void start()
-   {
-      try
-      {
-         ObjectName objectName = ObjectNameFactory.create(FrameworkMBeanExt.OBJECTNAME);
-         StandardMBean mbean = new StandardMBean(this, FrameworkMBeanExt.class);
-         mbeanServer.registerMBean(mbean, objectName);
-      }
-      catch (JMException ex)
-      {
-         log.warn("Cannot register: " + FrameworkMBeanExt.OBJECTNAME);
-      }
-   }
-
-   void stop()
-   {
-      try
-      {
-         ObjectName objectName = ObjectNameFactory.create(FrameworkMBeanExt.OBJECTNAME);
-         if (mbeanServer.isRegistered(objectName))
-            mbeanServer.unregisterMBean(objectName);
-      }
-      catch (JMException ex)
-      {
-         log.warn("Cannot register: " + FrameworkMBeanExt.OBJECTNAME);
-      }
    }
 
    public int getFrameworkStartLevel() throws IOException
@@ -252,15 +213,5 @@ public class FrameworkImpl implements FrameworkMBeanExt
    public void updateFramework() throws IOException
    {
       getFrameworkMBean().updateFramework();
-   }
-
-   private FrameworkMBean getFrameworkMBean()
-   {
-      if (delegate == null)
-      {
-         ObjectName objectName = ObjectNameFactory.create(FrameworkMBean.OBJECTNAME);
-         delegate = MBeanProxy.get(mbeanServer, objectName, FrameworkMBean.class);
-      }
-      return delegate;
    }
 }

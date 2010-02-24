@@ -56,8 +56,8 @@ public class JMXServiceActivator implements BundleActivator
    private String jmxRmiPort;
    private String rmiAdaptorPath;
    private MBeanServer mbeanServer;
-   private FrameworkImpl framework;
-   private ServiceStateImpl serviceState;
+   private FrameworkState framework;
+   private ServiceState serviceState;
    private ManagedBundleTracker bundleTracker;
 
    public void start(BundleContext context)
@@ -70,11 +70,11 @@ public class JMXServiceActivator implements BundleActivator
       BundleContext sysContext = context.getBundle(0).getBundleContext();
 
       // Register the FrameworkMBean
-      framework = new FrameworkImpl(sysContext, mbeanServer);
+      framework = new FrameworkState(sysContext, mbeanServer);
       framework.start();
 
       // Register the ServiceStateMBean 
-      serviceState = new ServiceStateImpl(sysContext, mbeanServer);
+      serviceState = new ServiceState(sysContext, mbeanServer);
       serviceState.start();
       
       // Start tracking the bundles

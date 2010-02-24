@@ -1,15 +1,2 @@
 $Id$
 
-------------------------------------------------------------------------------------------
-JMX FrameworkMBean does not allow to resolve/refresh all bundles
-https://www.osgi.org/members/bugzilla/show_bug.cgi?id=1586
-
-The signature and API docs of 
-
-FrameworkMBean.refreshBundles(long[] bundleIdentifiers)
-FrameworkMBean.resolveBundles(long[] bundleIdentifiers)
-
-does not obviously allow to resolve/refresh all bundles.
-
-A client would be forced to collect all ids before making the call. 
-PackageAdmin however uses a null paramter to mean 'all bundles'.

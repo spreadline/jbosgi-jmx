@@ -25,7 +25,6 @@ import org.osgi.jmx.framework.FrameworkMBean;
 
 //$Id$
 
-
 /**
  * An extension to {@link FrameworkMBean}.
  * 

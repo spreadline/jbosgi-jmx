@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.management.JMException;
 import javax.management.MBeanServer;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.management.openmbean.CompositeData;
@@ -39,10 +39,7 @@ import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 
-import org.jboss.logging.Logger;
-import org.jboss.osgi.jmx.FrameworkMBeanExt;
 import org.jboss.osgi.jmx.ServiceStateMBeanExt;
-import org.jboss.osgi.spi.management.MBeanProxy;
 import org.jboss.osgi.spi.management.ObjectNameFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -57,27 +54,23 @@ import org.osgi.jmx.framework.ServiceStateMBean;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2010
  */
-public class ServiceStateImpl implements ServiceStateMBeanExt
+public class ServiceState extends AbstractStateMBean implements ServiceStateMBeanExt
 {
-   // Provide logging
-   private static final Logger log = Logger.getLogger(ServiceStateImpl.class);
-
-   private MBeanServer mbeanServer;
-   private BundleContext context;
-   private ServiceStateMBean delegate;
-
-   public ServiceStateImpl(BundleContext context, MBeanServer mbeanServer)
+   public ServiceState(BundleContext context, MBeanServer mbeanServer)
    {
-      if (context == null)
-         throw new IllegalArgumentException("Null BundleContext");
-      if (mbeanServer == null)
-         throw new IllegalArgumentException("Null MBeanServer");
+      super(context, mbeanServer);
+   }
 
-      if (context.getBundle().getBundleId() != 0)
-         throw new IllegalArgumentException("Not the system bundle context: " + context);
+   @Override
+   ObjectName getObjectName()
+   {
+      return ObjectNameFactory.create(OBJECTNAME);
+   }
 
-      this.context = context;
-      this.mbeanServer = mbeanServer;
+   @Override
+   StandardMBean getStandardMBean() throws NotCompliantMBeanException
+   {
+      return new StandardMBean(this, ServiceStateMBeanExt.class);
    }
 
    @Override
@@ -119,7 +112,7 @@ public class ServiceStateImpl implements ServiceStateMBeanExt
    private CompositeDataSupport getCompositeData(ServiceReference sref) throws IOException
    {
       Long serviceId = (Long)sref.getProperty(Constants.SERVICE_ID);
-      
+
       List<Long> usingBundles = new ArrayList<Long>();
       for (Bundle aux : sref.getUsingBundles())
          usingBundles.add(aux.getBundleId());
@@ -129,7 +122,7 @@ public class ServiceStateImpl implements ServiceStateMBeanExt
       items.put(IDENTIFIER, serviceId);
       items.put(OBJECT_CLASS, sref.getProperty(Constants.OBJECTCLASS));
       items.put(USING_BUNDLES, usingBundles.toArray(new Long[usingBundles.size()]));
-      
+
       // [TODO] Remove once ServiceType does not require this item any more
       items.put(PROPERTIES, getProperties(serviceId));
 
@@ -143,34 +136,6 @@ public class ServiceStateImpl implements ServiceStateMBeanExt
          throw new IllegalStateException(ex);
       }
       return compData;
-   }
-
-   void start()
-   {
-      try
-      {
-         ObjectName objectName = ObjectNameFactory.create(ServiceStateMBeanExt.OBJECTNAME);
-         StandardMBean mbean = new StandardMBean(this, ServiceStateMBeanExt.class);
-         mbeanServer.registerMBean(mbean, objectName);
-      }
-      catch (JMException ex)
-      {
-         log.warn("Cannot register: " + FrameworkMBeanExt.OBJECTNAME);
-      }
-   }
-
-   void stop()
-   {
-      try
-      {
-         ObjectName objectName = ObjectNameFactory.create(ServiceStateMBeanExt.OBJECTNAME);
-         if (mbeanServer.isRegistered(objectName))
-            mbeanServer.unregisterMBean(objectName);
-      }
-      catch (JMException ex)
-      {
-         log.warn("Cannot register: " + FrameworkMBeanExt.OBJECTNAME);
-      }
    }
 
    public long getBundleIdentifier(long arg0) throws IOException
@@ -196,15 +161,5 @@ public class ServiceStateImpl implements ServiceStateMBeanExt
    public TabularData listServices() throws IOException
    {
       return getServiceStateMBean().listServices();
-   }
-
-   private ServiceStateMBean getServiceStateMBean()
-   {
-      if (delegate == null)
-      {
-         ObjectName objectName = ObjectNameFactory.create(ServiceStateMBean.OBJECTNAME);
-         delegate = MBeanProxy.get(mbeanServer, objectName, ServiceStateMBean.class);
-      }
-      return delegate;
    }
 }
