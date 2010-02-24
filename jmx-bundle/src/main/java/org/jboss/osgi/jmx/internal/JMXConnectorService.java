@@ -37,7 +37,6 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.jboss.logging.Logger;
-import org.jboss.net.sockets.DefaultSocketFactory;
 import org.osgi.framework.BundleContext;
 
 /**
