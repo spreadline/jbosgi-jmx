@@ -44,10 +44,10 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2009
  */
-public class FrameworkState extends AbstractStateMBean implements FrameworkMBeanExt
+public class FrameworkStateExt extends AbstractState implements FrameworkMBeanExt
 {
    
-   public FrameworkState(BundleContext context, MBeanServer mbeanServer)
+   public FrameworkStateExt(BundleContext context, MBeanServer mbeanServer)
    {
       super(context, mbeanServer);
    }

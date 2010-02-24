@@ -28,6 +28,7 @@ import java.io.IOException;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
+import org.osgi.jmx.JmxConstants;
 import org.osgi.jmx.framework.BundleStateMBean;
 
 /**
@@ -63,6 +64,19 @@ public interface BundleStateMBeanExt extends BundleStateMBean
     */
    TabularData getHeaders(long bundleId, String locale) throws IOException;
 
+   /**
+    * Answer the map of properties associated with this bundle
+    * 
+    * @see JmxConstants#PROPERTIES_TYPE for the details of the CompositeType
+    * 
+    * @param bundleId the unique identifier of the bundle
+    * @param key The name of the requested property. 
+    * @return the property data, or null if the property is undefined. 
+    * @throws IOException if the operation fails
+    * @throws IllegalArgumentException if the bundle indicated does not exist
+    */
+   CompositeData getProperty(long bundleId, String key) throws IOException;
+   
    /**
     * Loads the specified class using the class loader of the bundle with the given identifier. 
     * 

@@ -56,10 +56,9 @@ public class JMXServiceActivator implements BundleActivator
    private String jmxRmiPort;
    private String rmiAdaptorPath;
    private MBeanServer mbeanServer;
-   private FrameworkState frameworkState;
-   private ServiceState serviceState;
-   private BundleState bundleState;
-   private ManagedBundleTracker bundleTracker;
+   private FrameworkStateExt frameworkState;
+   private ServiceStateExt serviceState;
+   private BundleStateExt bundleState;
 
    public void start(BundleContext context)
    {
@@ -71,21 +70,17 @@ public class JMXServiceActivator implements BundleActivator
       BundleContext sysContext = context.getBundle(0).getBundleContext();
 
       // Register the FrameworkMBean
-      frameworkState = new FrameworkState(sysContext, mbeanServer);
+      frameworkState = new FrameworkStateExt(sysContext, mbeanServer);
       frameworkState.start();
 
       // Register the ServiceStateMBean 
-      serviceState = new ServiceState(sysContext, mbeanServer);
+      serviceState = new ServiceStateExt(sysContext, mbeanServer);
       serviceState.start();
       
       // Register the BundleStateMBean 
-      bundleState = new BundleState(sysContext, mbeanServer);
+      bundleState = new BundleStateExt(sysContext, mbeanServer);
       bundleState.start();
       
-      // Start tracking the bundles
-      bundleTracker = new ManagedBundleTracker(sysContext, mbeanServer);
-      bundleTracker.open();
-
       jmxHost = context.getProperty(JMXConstantsExt.REMOTE_JMX_HOST);
       if (jmxHost == null)
          jmxHost = "localhost";
@@ -114,9 +109,6 @@ public class JMXServiceActivator implements BundleActivator
       // Unregister the BundleStateMBean 
       bundleState.stop();
       
-      // Stop tracking the bundles
-      bundleTracker.close();
-
       if (jmxConnector != null)
       {
          jmxConnector.stop();

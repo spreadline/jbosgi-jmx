@@ -54,9 +54,9 @@ import org.osgi.jmx.framework.ServiceStateMBean;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2010
  */
-public class ServiceState extends AbstractStateMBean implements ServiceStateMBeanExt
+public class ServiceStateExt extends AbstractState implements ServiceStateMBeanExt
 {
-   public ServiceState(BundleContext context, MBeanServer mbeanServer)
+   public ServiceStateExt(BundleContext context, MBeanServer mbeanServer)
    {
       super(context, mbeanServer);
    }
@@ -113,15 +113,21 @@ public class ServiceState extends AbstractStateMBean implements ServiceStateMBea
    {
       Long serviceId = (Long)sref.getProperty(Constants.SERVICE_ID);
 
-      List<Long> usingBundles = new ArrayList<Long>();
-      for (Bundle aux : sref.getUsingBundles())
-         usingBundles.add(aux.getBundleId());
+      // Get the array of using bundles identifiers
+      List<Long> usingIdentifiers = new ArrayList<Long>();
+      Bundle[] usingBundles = sref.getUsingBundles();
+      if (usingBundles != null)
+      {
+         for (Bundle aux : usingBundles)
+            usingIdentifiers.add(aux.getBundleId());
+      }
+      Long[] usingArr = usingIdentifiers.toArray(new Long[usingIdentifiers.size()]);
 
       Map<String, Object> items = new HashMap<String, Object>();
       items.put(BUNDLE_IDENTIFIER, sref.getBundle().getBundleId());
       items.put(IDENTIFIER, serviceId);
       items.put(OBJECT_CLASS, sref.getProperty(Constants.OBJECTCLASS));
-      items.put(USING_BUNDLES, usingBundles.toArray(new Long[usingBundles.size()]));
+      items.put(USING_BUNDLES, usingArr);
 
       // [TODO] Remove once ServiceType does not require this item any more
       items.put(PROPERTIES, getProperties(serviceId));

@@ -49,6 +49,7 @@ import org.jboss.osgi.spi.management.ObjectNameFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.jmx.JmxConstants;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -58,9 +59,9 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2010
  */
-public class BundleState extends AbstractStateMBean implements BundleStateMBeanExt
+public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
 {
-   public BundleState(BundleContext context, MBeanServer mbeanServer)
+   public BundleStateExt(BundleContext context, MBeanServer mbeanServer)
    {
       super(context, mbeanServer);
    }
@@ -90,8 +91,8 @@ public class BundleState extends AbstractStateMBean implements BundleStateMBeanE
    @Override
    public String getDataFile(long bundleId, String filename) throws IOException
    {
-      Bundle bundle = assertBundle(bundleId);
-      File dataFile = bundle.getBundleContext().getDataFile(filename);
+      BundleContext context = assertBundleContext(bundleId);
+      File dataFile = context.getDataFile(filename);
       return dataFile.getCanonicalPath();
    }
 
@@ -122,6 +123,27 @@ public class BundleState extends AbstractStateMBean implements BundleStateMBeanE
          headerTable.put(header.toCompositeData());
       }
       return headerTable;
+   }
+
+   @Override
+   public CompositeData getProperty(long bundleId, String key) throws IOException
+   {
+      BundleContext bundleContext = assertBundleContext(bundleId);
+      String value = bundleContext.getProperty(key);
+      if (value == null)
+         return null;
+      
+      Map<String, Object> items = new HashMap<String, Object>();
+      items.put(KEY, key);
+      items.put(VALUE, value);
+      try
+      {
+         return new CompositeDataSupport(JmxConstants.PROPERTY_TYPE, items);
+      }
+      catch (OpenDataException ex)
+      {
+         throw new JMRuntimeException("Failed to create CompositeData for property [" + key + ":" + value + "] - " + ex.getMessage());
+      }
    }
 
    @Override
@@ -254,56 +276,74 @@ public class BundleState extends AbstractStateMBean implements BundleStateMBeanE
       return bundle;
    }
 
+   private BundleContext assertBundleContext(long bundleId)
+   {
+      Bundle bundle = assertBundle(bundleId);
+      BundleContext bundleContext = bundle.getBundleContext();
+      return bundleContext;
+   }
+
    /*
     * Represents key/value pair in BundleData headers
     */
-   static class Header {
+   static class Header
+   {
 
-       private String key;
-       private String value;
+      private String key;
+      private String value;
 
-       String getKey() {
-           return key;
-       }
+      String getKey()
+      {
+         return key;
+      }
 
-       String getValue() {
-           return value;
-       }
+      String getValue()
+      {
+         return value;
+      }
 
-       private Header() {
-           super();
-       }
+      private Header()
+      {
+         super();
+      }
 
-       Header(String key, String value) {
-           this.key = key;
-           this.value = value;
-       }
+      Header(String key, String value)
+      {
+         this.key = key;
+         this.value = value;
+      }
 
-       CompositeData toCompositeData() throws JMRuntimeException {
-           CompositeData result = null;
-           Map<String, Object> items = new HashMap<String, Object>();
-           items.put(KEY, key);
-           items.put(VALUE, value);
-           try {
-               result = new CompositeDataSupport(HEADER_TYPE, items);
-           } catch (OpenDataException e) {
-               throw new JMRuntimeException("Failed to create CompositeData for header [" + key + ":" + value + "] - "
-                       + e.getMessage());
-           }
-           return result;
-       }
+      CompositeData toCompositeData() throws JMRuntimeException
+      {
+         CompositeData result = null;
+         Map<String, Object> items = new HashMap<String, Object>();
+         items.put(KEY, key);
+         items.put(VALUE, value);
+         try
+         {
+            result = new CompositeDataSupport(HEADER_TYPE, items);
+         }
+         catch (OpenDataException e)
+         {
+            throw new JMRuntimeException("Failed to create CompositeData for header [" + key + ":" + value + "] - " + e.getMessage());
+         }
+         return result;
+      }
 
-       static Header from(CompositeData compositeData) {
-           if (compositeData == null) {
-               throw new IllegalArgumentException("Argument compositeData cannot be null");
-           }
-           if (!compositeData.getCompositeType().equals(HEADER_TYPE)) {
-               throw new IllegalArgumentException("Invalid CompositeType [" + compositeData.getCompositeType() + "]");
-           }
-           Header header = new Header();
-           header.key = (String) compositeData.get(KEY);
-           header.value = (String) compositeData.get(VALUE);
-           return header;
-       }
+      static Header from(CompositeData compositeData)
+      {
+         if (compositeData == null)
+         {
+            throw new IllegalArgumentException("Argument compositeData cannot be null");
+         }
+         if (!compositeData.getCompositeType().equals(HEADER_TYPE))
+         {
+            throw new IllegalArgumentException("Invalid CompositeType [" + compositeData.getCompositeType() + "]");
+         }
+         Header header = new Header();
+         header.key = (String)compositeData.get(KEY);
+         header.value = (String)compositeData.get(VALUE);
+         return header;
+      }
    }
 }

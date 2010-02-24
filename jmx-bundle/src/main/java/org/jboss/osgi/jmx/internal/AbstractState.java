@@ -43,15 +43,15 @@ import org.osgi.jmx.framework.ServiceStateMBean;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2010
  */
-abstract class AbstractStateMBean
+abstract class AbstractState
 {
    // Provide logging
-   private static final Logger log = Logger.getLogger(AbstractStateMBean.class);
+   private static final Logger log = Logger.getLogger(AbstractState.class);
    
    protected MBeanServer mbeanServer;
    protected BundleContext context;
 
-   AbstractStateMBean(BundleContext context, MBeanServer mbeanServer)
+   AbstractState(BundleContext context, MBeanServer mbeanServer)
    {
       if (context == null)
          throw new IllegalArgumentException("Null BundleContext");
