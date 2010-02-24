@@ -37,7 +37,6 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.jboss.logging.Logger;
-import org.osgi.framework.BundleContext;
 
 /**
  * A Service Activator that registers an MBeanServer
@@ -55,7 +54,7 @@ public class JMXConnectorService
    private boolean shutdownRegistry;
    private Registry rmiRegistry;
 
-   public JMXConnectorService(BundleContext context, MBeanServer mbeanServer, String host, int rmiPort) throws IOException
+   public JMXConnectorService(MBeanServer mbeanServer, String host, int rmiPort) throws IOException
    {
       // check to see if registry already created
       rmiRegistry = LocateRegistry.getRegistry(host, rmiPort);

@@ -26,16 +26,24 @@ package org.jboss.osgi.jmx.internal;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import javax.management.JMRuntimeException;
 import javax.management.MBeanServer;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeDataSupport;
+import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.TabularData;
+import javax.management.openmbean.TabularDataSupport;
 
-import org.jboss.logging.Logger;
 import org.jboss.osgi.jmx.BundleStateMBeanExt;
 import org.jboss.osgi.spi.management.ObjectNameFactory;
 import org.osgi.framework.Bundle;
@@ -96,12 +104,24 @@ public class BundleState extends AbstractStateMBean implements BundleStateMBeanE
    }
 
    @Override
+   @SuppressWarnings("unchecked")
    public TabularData getHeaders(long bundleId, String locale) throws IOException
    {
       Bundle bundle = assertBundle(bundleId);
-      Dictionary<String, String> headers = bundle.getHeaders(locale);
-      // TODO Auto-generated method stub
-      return null;
+      List<Header> headers = new ArrayList<Header>();
+      Dictionary<String, String> bundleHeaders = bundle.getHeaders(locale);
+      Enumeration<String> keys = bundleHeaders.keys();
+      while (keys.hasMoreElements())
+      {
+         String key = keys.nextElement();
+         headers.add(new Header(key, bundleHeaders.get(key)));
+      }
+      TabularData headerTable = new TabularDataSupport(HEADERS_TYPE);
+      for (Header header : headers)
+      {
+         headerTable.put(header.toCompositeData());
+      }
+      return headerTable;
    }
 
    @Override
@@ -122,7 +142,7 @@ public class BundleState extends AbstractStateMBean implements BundleStateMBeanE
       Bundle exporter = service.getBundle(clazz);
       if (exporter == null)
          return 0;
-      
+
       return exporter.getBundleId();
    }
 
@@ -232,5 +252,58 @@ public class BundleState extends AbstractStateMBean implements BundleStateMBeanE
       if (bundle == null)
          throw new IllegalArgumentException("No such bundle: " + bundleId);
       return bundle;
+   }
+
+   /*
+    * Represents key/value pair in BundleData headers
+    */
+   static class Header {
+
+       private String key;
+       private String value;
+
+       String getKey() {
+           return key;
+       }
+
+       String getValue() {
+           return value;
+       }
+
+       private Header() {
+           super();
+       }
+
+       Header(String key, String value) {
+           this.key = key;
+           this.value = value;
+       }
+
+       CompositeData toCompositeData() throws JMRuntimeException {
+           CompositeData result = null;
+           Map<String, Object> items = new HashMap<String, Object>();
+           items.put(KEY, key);
+           items.put(VALUE, value);
+           try {
+               result = new CompositeDataSupport(HEADER_TYPE, items);
+           } catch (OpenDataException e) {
+               throw new JMRuntimeException("Failed to create CompositeData for header [" + key + ":" + value + "] - "
+                       + e.getMessage());
+           }
+           return result;
+       }
+
+       static Header from(CompositeData compositeData) {
+           if (compositeData == null) {
+               throw new IllegalArgumentException("Argument compositeData cannot be null");
+           }
+           if (!compositeData.getCompositeType().equals(HEADER_TYPE)) {
+               throw new IllegalArgumentException("Invalid CompositeType [" + compositeData.getCompositeType() + "]");
+           }
+           Header header = new Header();
+           header.key = (String) compositeData.get(KEY);
+           header.value = (String) compositeData.get(VALUE);
+           return header;
+       }
    }
 }

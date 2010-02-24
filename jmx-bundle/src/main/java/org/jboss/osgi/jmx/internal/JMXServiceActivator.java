@@ -56,8 +56,9 @@ public class JMXServiceActivator implements BundleActivator
    private String jmxRmiPort;
    private String rmiAdaptorPath;
    private MBeanServer mbeanServer;
-   private FrameworkState framework;
+   private FrameworkState frameworkState;
    private ServiceState serviceState;
+   private BundleState bundleState;
    private ManagedBundleTracker bundleTracker;
 
    public void start(BundleContext context)
@@ -70,12 +71,16 @@ public class JMXServiceActivator implements BundleActivator
       BundleContext sysContext = context.getBundle(0).getBundleContext();
 
       // Register the FrameworkMBean
-      framework = new FrameworkState(sysContext, mbeanServer);
-      framework.start();
+      frameworkState = new FrameworkState(sysContext, mbeanServer);
+      frameworkState.start();
 
       // Register the ServiceStateMBean 
       serviceState = new ServiceState(sysContext, mbeanServer);
       serviceState.start();
+      
+      // Register the BundleStateMBean 
+      bundleState = new BundleState(sysContext, mbeanServer);
+      bundleState.start();
       
       // Start tracking the bundles
       bundleTracker = new ManagedBundleTracker(sysContext, mbeanServer);
@@ -101,11 +106,14 @@ public class JMXServiceActivator implements BundleActivator
    public void stop(BundleContext context)
    {
       // Unregister the FrameworkMBean
-      framework.stop();
+      frameworkState.stop();
 
       // Unregister the ServiceStateMBean
       serviceState.stop();
 
+      // Unregister the BundleStateMBean 
+      bundleState.stop();
+      
       // Stop tracking the bundles
       bundleTracker.close();
 
@@ -137,7 +145,7 @@ public class JMXServiceActivator implements BundleActivator
          {
             // Try to start the JMXConnector, this should fail if it is already running
             // [TODO] is there a better way to check whether the connector is already running?
-            jmxConnector = new JMXConnectorService(context, mbeanServer, jmxHost, Integer.parseInt(jmxRmiPort));
+            jmxConnector = new JMXConnectorService(mbeanServer, jmxHost, Integer.parseInt(jmxRmiPort));
             jmxConnector.start();
          }
          catch (IOException ex)

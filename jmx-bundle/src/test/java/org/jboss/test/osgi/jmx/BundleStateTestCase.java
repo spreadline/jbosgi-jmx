@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 import javax.management.ObjectName;
 import javax.management.openmbean.TabularData;
 
+import org.jboss.osgi.jmx.BundleStateMBeanExt;
 import org.jboss.osgi.spi.management.ObjectNameFactory;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
@@ -45,7 +46,7 @@ public class BundleStateTestCase extends AbstractTestCase
    @Test
    public void testMBeanAccess() throws Exception
    {
-      ObjectName oname = ObjectNameFactory.create(BundleStateMBean.OBJECTNAME);
+      ObjectName oname = ObjectNameFactory.create(BundleStateMBeanExt.OBJECTNAME);
       assertTrue("Registerd " + oname, getMBeanServer().isRegistered(oname));
    }
    
@@ -53,7 +54,6 @@ public class BundleStateTestCase extends AbstractTestCase
    public void listBundles() throws Exception
    {
       Bundle[] bundles = getSystemContext().getBundles();
-      
       BundleStateMBean bundleState = getBundleStateMBean();
       TabularData data = bundleState.listBundles();
       assertEquals("Number of bundles", bundles.length, data.size());
