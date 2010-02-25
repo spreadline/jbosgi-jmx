@@ -30,11 +30,11 @@ import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
 import org.jboss.osgi.jmx.FrameworkMBeanExt;
+import org.jboss.osgi.jmx.MBeanProxy;
+import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.jboss.osgi.jmx.ServiceStateMBeanExt;
 import org.jboss.osgi.spi.framework.OSGiBootstrap;
 import org.jboss.osgi.spi.framework.OSGiBootstrapProvider;
-import org.jboss.osgi.spi.management.MBeanProxy;
-import org.jboss.osgi.spi.management.ObjectNameFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.osgi.framework.BundleContext;

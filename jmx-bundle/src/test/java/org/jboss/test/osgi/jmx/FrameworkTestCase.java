@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 import javax.management.ObjectName;
 
 import org.jboss.osgi.jmx.FrameworkMBeanExt;
-import org.jboss.osgi.spi.management.ObjectNameFactory;
+import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.junit.Test;
 import org.osgi.jmx.framework.FrameworkMBean;
 

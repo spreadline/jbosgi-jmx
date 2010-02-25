@@ -30,7 +30,7 @@ import javax.management.ObjectName;
 import javax.management.openmbean.TabularData;
 
 import org.jboss.osgi.jmx.BundleStateMBeanExt;
-import org.jboss.osgi.spi.management.ObjectNameFactory;
+import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.jmx.framework.BundleStateMBean;

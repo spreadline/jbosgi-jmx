@@ -30,8 +30,8 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
 import org.jboss.logging.Logger;
-import org.jboss.osgi.spi.management.MBeanProxy;
-import org.jboss.osgi.spi.management.ObjectNameFactory;
+import org.jboss.osgi.jmx.MBeanProxy;
+import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.FrameworkMBean;

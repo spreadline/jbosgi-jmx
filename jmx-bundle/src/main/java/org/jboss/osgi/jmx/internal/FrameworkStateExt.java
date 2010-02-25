@@ -32,7 +32,7 @@ import javax.management.StandardMBean;
 import javax.management.openmbean.CompositeData;
 
 import org.jboss.osgi.jmx.FrameworkMBeanExt;
-import org.jboss.osgi.spi.management.ObjectNameFactory;
+import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.jmx.framework.FrameworkMBean;
