@@ -141,9 +141,12 @@ public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
       if (value == null)
          return null;
       
+      String type = value.getClass().getSimpleName();
+      
       Map<String, Object> items = new HashMap<String, Object>();
-      items.put(KEY, key);
-      items.put(VALUE, value);
+      items.put(JmxConstants.KEY, key);
+      items.put(JmxConstants.VALUE, value);
+      items.put(JmxConstants.TYPE, type);
       try
       {
          return new CompositeDataSupport(JmxConstants.PROPERTY_TYPE, items);
