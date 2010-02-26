@@ -34,9 +34,7 @@ import javax.management.openmbean.CompositeData;
 import org.jboss.osgi.jmx.FrameworkMBeanExt;
 import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.jmx.framework.FrameworkMBean;
-import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
  * An extension to {@link FrameworkMBean}.
@@ -67,33 +65,17 @@ public class FrameworkStateExt extends AbstractState implements FrameworkMBeanEx
    @Override
    public void refreshBundles(long[] bundleIdentifiers) throws IOException
    {
-      // https://issues.apache.org/jira/browse/ARIES-177
-      if (bundleIdentifiers == null)
-      {
-         ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
-         PackageAdmin service = (PackageAdmin)context.getService(sref);
-         service.refreshPackages(null);
-         return;
-      }
-      
-      getFrameworkMBean().refreshPackages(bundleIdentifiers);
+      getFrameworkMBean().refreshBundles(bundleIdentifiers);
    }
 
    @Override
    public void refreshBundle(long bundleIdentifier) throws IOException
    {
-      getFrameworkMBean().refreshPackages(bundleIdentifier);
+      getFrameworkMBean().refreshBundle(bundleIdentifier);
    }
 
    public boolean resolveBundles(long[] bundleIdentifiers) throws IOException
    {
-      // https://issues.apache.org/jira/browse/ARIES-177
-      if (bundleIdentifiers == null)
-      {
-         ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
-         PackageAdmin service = (PackageAdmin)context.getService(sref);
-         return service.resolveBundles(null);
-      }
       return getFrameworkMBean().resolveBundles(bundleIdentifiers);
    }
 
@@ -130,19 +112,6 @@ public class FrameworkStateExt extends AbstractState implements FrameworkMBeanEx
    public CompositeData installBundles(String[] arg0) throws IOException
    {
       return getFrameworkMBean().installBundles(arg0);
-   }
-
-   @Deprecated
-   public void refreshPackages(long bundleIdentifier) throws IOException
-   {
-      refreshBundle(bundleIdentifier);
-   }
-
-   @Deprecated
-   public CompositeData refreshPackages(long[] bundleIdentifiers) throws IOException
-   {
-      refreshBundles(bundleIdentifiers);
-      return null;
    }
 
    public void restartFramework() throws IOException

@@ -21,8 +21,6 @@
  */
 package org.jboss.osgi.jmx;
 
-import java.io.IOException;
-
 import org.osgi.jmx.framework.FrameworkMBean;
 
 //$Id$
@@ -37,20 +35,4 @@ public interface FrameworkMBeanExt extends FrameworkMBean
 {
    /** The default object name: jboss.osgi:service=jmx,type=Framework */
    String OBJECTNAME = "jboss.osgi:service=jmx,type=Framework";
-
-   /**
-    * Force the update, replacement or removal of the packages identified by the list of bundles. 
-    * 
-    * JMX FrameworkMBean does not allow to resolve/refresh all bundles
-    * https://issues.apache.org/jira/browse/ARIES-177
-    */
-   void refreshBundles(long[] bundleIdentifiers) throws IOException;
-
-   /**
-    * Force the update, replacement or removal of the packages identified by the specified bundle.
-    * 
-    * JMX FrameworkMBean does not allow to resolve/refresh all bundles
-    * https://issues.apache.org/jira/browse/ARIES-177
-    */
-   void refreshBundle(long bundleIdentifier) throws IOException;
 }
