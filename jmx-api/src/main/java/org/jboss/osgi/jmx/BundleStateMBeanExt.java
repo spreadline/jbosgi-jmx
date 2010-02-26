@@ -45,6 +45,8 @@ public interface BundleStateMBeanExt extends BundleStateMBean
    /**
     * Answer the bundle state for a single bundle. 
     * Composite Data that is type by {@link BundleStateMBean#BUNDLE_TYPE}.
+    * 
+    * https://www.osgi.org/members/bugzilla/show_bug.cgi?id=1598
     *    
     * @param bundleId the bundle identifier
     * @return The composite bundle information
@@ -56,6 +58,8 @@ public interface BundleStateMBeanExt extends BundleStateMBean
    /**
     * Answer the headers for the bundle uniquely identified by the bundle id. 
     * The Tabular Data is typed by the {@link BundleStateMBean#HEADERS_TYPE}.
+    * 
+    * https://www.osgi.org/members/bugzilla/show_bug.cgi?id=1599
     * 
     * @param bundleId the unique identifier of the bundle
     * @param locale The locale name into which the header values are to be localized.
@@ -69,6 +73,8 @@ public interface BundleStateMBeanExt extends BundleStateMBean
     * 
     * @see JmxConstants#PROPERTIES_TYPE for the details of the CompositeType
     * 
+    * https://www.osgi.org/members/bugzilla/show_bug.cgi?id=1600
+    * 
     * @param bundleId the unique identifier of the bundle
     * @param key The name of the requested property. 
     * @return the property data, or null if the property is undefined. 
@@ -78,7 +84,9 @@ public interface BundleStateMBeanExt extends BundleStateMBean
    CompositeData getProperty(long bundleId, String key) throws IOException;
    
    /**
-    * Loads the specified class using the class loader of the bundle with the given identifier. 
+    * Loads the specified class using the class loader of the bundle with the given identifier.
+    * 
+    * https://www.osgi.org/members/bugzilla/show_bug.cgi?id=1601
     * 
     * @param bundleId the unique identifier of the bundle
     * @param name The name of the class to load
@@ -90,6 +98,8 @@ public interface BundleStateMBeanExt extends BundleStateMBean
    /**
     * Returns a string encoded URL to the entry at the specified path in the given bundle.
     * 
+    * https://www.osgi.org/members/bugzilla/show_bug.cgi?id=1601
+    * 
     * @param bundleId the unique identifier of the bundle
     * @param path The path name of the entry
     * @return A URL to the entry, or null if no entry could be found
@@ -99,6 +109,8 @@ public interface BundleStateMBeanExt extends BundleStateMBean
    /**
     * Find the specified resource from the given bundle's class loader.
     *  
+    * https://www.osgi.org/members/bugzilla/show_bug.cgi?id=1601
+    * 
     * @param bundleId the unique identifier of the bundle
     * @param name The name of the resource.
     * @return A string encoded URL to the named resource, or null if the resource could not be found
@@ -107,6 +119,8 @@ public interface BundleStateMBeanExt extends BundleStateMBean
 
    /**
     * Get the string encoded file path in the persistent storage area provided for the given bundle.
+    * 
+    * https://www.osgi.org/members/bugzilla/show_bug.cgi?id=1601
     * 
     * @param bundleId the unique identifier of the bundle
     * @param filename A relative name to the file to be accessed

@@ -45,11 +45,16 @@ public interface ServiceStateMBeanExt extends ServiceStateMBean
    /**
     * Returns a ServiceReference object for a service that implements and was registered 
     * under the specified class.
+    * 
+    * https://www.osgi.org/members/bugzilla/show_bug.cgi?id=1602
     */
    CompositeData getService(String clazz) throws IOException;
    
    /**
     * Returns an array of ManagedServiceReference objects. 
+    * 
+    * https://www.osgi.org/members/bugzilla/show_bug.cgi?id=1603
+    * 
     * The returned array of ManagedServiceReference objects contains services 
     * that were registered under the specified class, match the specified filter criteria, 
     * and the packages for the class names under which the services were registered.
