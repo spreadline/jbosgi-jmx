@@ -65,19 +65,41 @@ public class FrameworkStateExt extends AbstractState implements FrameworkMBeanEx
    }
 
    @Override
-   public void refreshAllPackages()
+   public void refreshBundles(long[] bundleIdentifiers) throws IOException
    {
-      ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
-      PackageAdmin service = (PackageAdmin)context.getService(sref);
-      service.refreshPackages(null);
+      // https://issues.apache.org/jira/browse/ARIES-177
+      if (bundleIdentifiers == null)
+      {
+         ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
+         PackageAdmin service = (PackageAdmin)context.getService(sref);
+         service.refreshPackages(null);
+         return;
+      }
+      
+      getFrameworkMBean().refreshPackages(bundleIdentifiers);
    }
 
    @Override
-   public boolean resolveAllBundles()
+   public void refreshBundle(long bundleIdentifier) throws IOException
    {
-      ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
-      PackageAdmin service = (PackageAdmin)context.getService(sref);
-      return service.resolveBundles(null);
+      getFrameworkMBean().refreshPackages(bundleIdentifier);
+   }
+
+   public boolean resolveBundles(long[] bundleIdentifiers) throws IOException
+   {
+      // https://issues.apache.org/jira/browse/ARIES-177
+      if (bundleIdentifiers == null)
+      {
+         ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
+         PackageAdmin service = (PackageAdmin)context.getService(sref);
+         return service.resolveBundles(null);
+      }
+      return getFrameworkMBean().resolveBundles(bundleIdentifiers);
+   }
+
+   public boolean resolveBundle(long arg0) throws IOException
+   {
+      return getFrameworkMBean().resolveBundle(arg0);
    }
 
    public int getFrameworkStartLevel() throws IOException
@@ -110,24 +132,17 @@ public class FrameworkStateExt extends AbstractState implements FrameworkMBeanEx
       return getFrameworkMBean().installBundles(arg0);
    }
 
-   public void refreshPackages(long arg0) throws IOException
+   @Deprecated
+   public void refreshPackages(long bundleIdentifier) throws IOException
    {
-      getFrameworkMBean().refreshPackages(arg0);
+      refreshBundle(bundleIdentifier);
    }
 
-   public CompositeData refreshPackages(long[] arg0) throws IOException
+   @Deprecated
+   public CompositeData refreshPackages(long[] bundleIdentifiers) throws IOException
    {
-      return getFrameworkMBean().refreshPackages(arg0);
-   }
-
-   public boolean resolveBundle(long arg0) throws IOException
-   {
-      return getFrameworkMBean().resolveBundle(arg0);
-   }
-
-   public boolean resolveBundles(long[] arg0) throws IOException
-   {
-      return getFrameworkMBean().resolveBundles(arg0);
+      refreshBundles(bundleIdentifiers);
+      return null;
    }
 
    public void restartFramework() throws IOException

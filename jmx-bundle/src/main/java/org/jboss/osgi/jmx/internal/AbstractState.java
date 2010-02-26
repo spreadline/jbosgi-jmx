@@ -35,6 +35,7 @@ import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.FrameworkMBean;
+import org.osgi.jmx.framework.PackageStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 
 /**
@@ -116,5 +117,11 @@ abstract class AbstractState
    {
       ObjectName objectName = ObjectNameFactory.create(ServiceStateMBean.OBJECTNAME);
       return MBeanProxy.get(mbeanServer, objectName, ServiceStateMBean.class);
+   }
+   
+   PackageStateMBean getPackageStateMBean()
+   {
+      ObjectName objectName = ObjectNameFactory.create(PackageStateMBean.OBJECTNAME);
+      return MBeanProxy.get(mbeanServer, objectName, PackageStateMBean.class);
    }
 }

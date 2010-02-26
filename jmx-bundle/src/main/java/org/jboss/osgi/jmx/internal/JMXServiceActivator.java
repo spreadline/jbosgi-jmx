@@ -59,6 +59,7 @@ public class JMXServiceActivator implements BundleActivator
    private FrameworkStateExt frameworkState;
    private ServiceStateExt serviceState;
    private BundleStateExt bundleState;
+   private PackageStateExt packageState;
 
    public void start(BundleContext context)
    {
@@ -80,6 +81,10 @@ public class JMXServiceActivator implements BundleActivator
       // Register the BundleStateMBean 
       bundleState = new BundleStateExt(sysContext, mbeanServer);
       bundleState.start();
+      
+      // Register the PackageStateMBean 
+      packageState = new PackageStateExt(sysContext, mbeanServer);
+      packageState.start();
       
       jmxHost = context.getProperty(JMXConstantsExt.REMOTE_JMX_HOST);
       if (jmxHost == null)
@@ -108,6 +113,9 @@ public class JMXServiceActivator implements BundleActivator
 
       // Unregister the BundleStateMBean 
       bundleState.stop();
+      
+      // Unregister the PackageStateMBean 
+      packageState.stop();
       
       if (jmxConnector != null)
       {
