@@ -1,0 +1,85 @@
+Index: jmx-core/src/main/java/org/apache/aries/jmx/Logger.java
+===================================================================
+--- jmx-core/src/main/java/org/apache/aries/jmx/Logger.java	(revision 916848)
++++ jmx-core/src/main/java/org/apache/aries/jmx/Logger.java	(working copy)
+@@ -16,6 +16,7 @@
+  */
+ package org.apache.aries.jmx;
+ 
++import org.osgi.framework.Bundle;
+ import org.osgi.framework.BundleContext;
+ import org.osgi.framework.ServiceReference;
+ import org.osgi.service.log.LogService;
+@@ -32,6 +33,7 @@
+ public class Logger extends ServiceTracker implements LogService {
+     
+     private String bundleLocation;
++    private Bundle bundle;
+ 
+     /**
+      * Constructs new Logger(ServiceTracker for LogService).
+@@ -41,6 +43,7 @@
+     public Logger(BundleContext context) {
+         super(context, LogService.class.getName(), null);
+         this.bundleLocation = context.getBundle().getLocation();
++        this.bundle = context.getBundle();
+     }
+ 
+     /**
+@@ -51,9 +54,8 @@
+         if (logService != null) {
+             logService.log(level, message);
+         } else {
+-            System.err.println("[" + bundleLocation + ":" + level + "] " + message);
++           syslog(level, message, null);
+         }
+-
+     }
+ 
+     /**
+@@ -64,8 +66,7 @@
+         if (logService != null) {
+             logService.log(level, message, exception);
+         } else {
+-            System.err.println("[" + bundleLocation + ":" + +level + "] " + message
+-                    + ((exception == null) ? " " : exception.toString()));
++            syslog(level, message, exception);
+         }
+     }
+ 
+@@ -77,8 +78,7 @@
+         if (logService != null) {
+             logService.log(ref, level, message);
+         } else {
+-            System.err.println("[" + bundleLocation + ":" + ((ref == null) ? " " : (ref + ":"))
+-                    + level + "] " + message);
++           syslog(ref, level, message, null);
+         }
+     }
+ 
+@@ -91,9 +91,23 @@
+         if (logService != null) {
+             logService.log(ref, level, message, exception);
+         } else {
+-            System.err.println("[" + bundleLocation + ":" + ((ref == null) ? "" : (ref + ":"))
+-                    + level + "] " + message + ((exception == null) ? " " : exception.toString()));
++            syslog(ref, level, message, exception);
+         }
+     }
+ 
++    private void syslog(int level, String message, Throwable exception)
++    {
++       if (bundle.getState() == Bundle.ACTIVE || exception != null) {
++          System.err.println("[" + bundleLocation + ":" + +level + "] " + message
++                + ((exception == null) ? " " : exception.toString()));
++       }
++    }
++
++    private void syslog(ServiceReference ref, int level, String message, Throwable exception)
++    {
++       if (bundle.getState() == Bundle.ACTIVE || exception != null) {
++           System.err.println("[" + bundleLocation + ":" + ((ref == null) ? "" : (ref + ":"))
++              + level + "] " + message + ((exception == null) ? " " : exception.toString()));
++       }
++    }
+ }
