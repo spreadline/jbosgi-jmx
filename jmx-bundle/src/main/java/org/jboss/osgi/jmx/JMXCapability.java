@@ -27,6 +27,7 @@ import javax.management.MBeanServer;
 
 import org.jboss.osgi.spi.capability.Capability;
 import org.jboss.osgi.spi.capability.CompendiumCapability;
+import org.jboss.osgi.testing.OSGiRuntime;
 
 /**
  * Adds the JMX capability to the {@link OSGiRuntime}
