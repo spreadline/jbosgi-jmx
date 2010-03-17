@@ -57,7 +57,7 @@ import org.osgi.jmx.framework.ServiceStateMBean;
 public class JMXCapability extends Capability
 {
    // Provide logging
-   private static final Logger log = Logger.getLogger(Capability.class);
+   private static final Logger log = Logger.getLogger(JMXCapability.class);
    
    public JMXCapability()
    {
