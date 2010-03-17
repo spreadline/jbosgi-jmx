@@ -24,10 +24,16 @@ package org.jboss.osgi.jmx;
 //$Id$
 
 import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
+import org.jboss.logging.Logger;
 import org.jboss.osgi.spi.capability.Capability;
 import org.jboss.osgi.spi.capability.CompendiumCapability;
 import org.jboss.osgi.testing.OSGiRuntime;
+import org.osgi.framework.BundleException;
+import org.osgi.jmx.framework.BundleStateMBean;
+import org.osgi.jmx.framework.FrameworkMBean;
+import org.osgi.jmx.framework.ServiceStateMBean;
 
 /**
  * Adds the JMX capability to the {@link OSGiRuntime}
@@ -50,6 +56,9 @@ import org.jboss.osgi.testing.OSGiRuntime;
  */
 public class JMXCapability extends Capability
 {
+   // Provide logging
+   private static final Logger log = Logger.getLogger(Capability.class);
+   
    public JMXCapability()
    {
       super(MBeanServer.class.getName());
@@ -61,5 +70,50 @@ public class JMXCapability extends Capability
       
       addBundle("bundles/jboss-osgi-jmx.jar");
       addBundle("bundles/org.apache.aries.jmx.jar");
+   }
+
+   @Override
+   public void start(OSGiRuntime runtime) throws BundleException
+   {
+      super.start(runtime);
+      assertMBeanRegistration(runtime, true);
+   }
+
+   @Override
+   public void stop(OSGiRuntime runtime)
+   {
+      super.stop(runtime);
+      assertMBeanRegistration(runtime, false);
+   }
+
+   private void assertMBeanRegistration(OSGiRuntime runtime, boolean state)
+   {
+      MBeanServer server = (MBeanServer)runtime.getMBeanServer();
+      ObjectName fwkName = ObjectNameFactory.create(FrameworkMBean.OBJECTNAME);
+      ObjectName bndName = ObjectNameFactory.create(BundleStateMBean.OBJECTNAME);
+      ObjectName srvName = ObjectNameFactory.create(ServiceStateMBean.OBJECTNAME);
+      
+      int timeout = 2000;
+      while ( 0 < (timeout -= 200))
+      {
+         if (server.isRegistered(fwkName) != state || server.isRegistered(bndName) != state || server.isRegistered(srvName) != state)
+         {
+            try
+            {
+               Thread.sleep(200);
+            }
+            catch (InterruptedException e)
+            {
+               // ignore
+            }
+         }
+      }
+      
+      if (server.isRegistered(fwkName) != state)
+         log.warn("FrameworkMBean " + (state ? "not" : "still") + " registered");
+      if (server.isRegistered(bndName) != state)
+         log.warn("BundleStateMBean " + (state ? "not" : "still") + " registered");
+      if (server.isRegistered(srvName) != state)
+         log.warn("ServiceStateMBean " + (state ? "not" : "still") + " registered");
    }
 }

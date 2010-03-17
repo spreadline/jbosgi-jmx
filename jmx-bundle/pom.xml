@@ -124,6 +124,7 @@
               <!-- jboss-osgi --> 
               org.jboss.osgi.jmx;version="[1.0,2.0)", 
               org.jboss.osgi.spi*;version="[1.0,2.0)", 
+              org.jboss.osgi.testing*;version="[1.0,2.0)", 
               
               <!-- osgi --> 
               org.osgi.framework;version="[1.5,2.0)",
