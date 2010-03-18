@@ -23,6 +23,7 @@ package org.jboss.osgi.jmx.internal;
 
 //$Id$
 
+
 import java.util.ArrayList;
 
 import javax.management.MBeanServer;
@@ -52,37 +53,46 @@ public class MBeanServerService
 
    public MBeanServer registerMBeanServer()
    {
-      MBeanServer mbeanServer = null;
-
       // Check if there is an MBeanServer service already
       ServiceReference sref = context.getServiceReference(MBeanServer.class.getName());
       if (sref != null)
       {
-         mbeanServer = (MBeanServer)context.getService(sref);
+         MBeanServer mbeanServer = (MBeanServer)context.getService(sref);
          log.debug("Found MBeanServer fom service: " + mbeanServer.getDefaultDomain());
          return mbeanServer;
       }
 
-      ArrayList<MBeanServer> serverArr = MBeanServerFactory.findMBeanServer(null);
-      if (serverArr.size() > 1)
-         log.warn("Multiple MBeanServer instances: " + serverArr);
-
-      if (serverArr.size() > 0)
-      {
-         mbeanServer = serverArr.get(0);
-         log.debug("Found MBeanServer: " + mbeanServer.getDefaultDomain());
-      }
-
-      if (mbeanServer == null)
-      {
-         log.debug("No MBeanServer, create one ...");
-         mbeanServer = MBeanServerFactory.createMBeanServer();
-      }
+      // Get or create th MBeanServer
+      MBeanServer mbeanServer = getMBeanServer();
 
       // Register the MBeanServer 
       context.registerService(MBeanServer.class.getName(), mbeanServer, null);
       log.debug("MBeanServer registered");
 
+      return mbeanServer;
+   }
+
+   private MBeanServer getMBeanServer()
+   {
+      MBeanServer mbeanServer = null;
+      
+      ArrayList<MBeanServer> serverArr = MBeanServerFactory.findMBeanServer(null);
+      if (serverArr.size() > 1)
+         log.warn("Multiple MBeanServer instances: " + serverArr);
+   
+      if (serverArr.size() > 0)
+      {
+         mbeanServer = serverArr.get(0);
+         log.debug("Found MBeanServer: " + mbeanServer);
+      }
+   
+      if (mbeanServer == null)
+      {
+         log.debug("No MBeanServer, create one ...");
+         mbeanServer = MBeanServerFactory.createMBeanServer();
+         log.debug("Created MBeanServer: " + mbeanServer);
+      }
+      
       return mbeanServer;
    }
 }

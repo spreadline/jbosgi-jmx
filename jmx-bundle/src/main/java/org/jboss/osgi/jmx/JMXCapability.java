@@ -58,16 +58,16 @@ public class JMXCapability extends Capability
 {
    // Provide logging
    private static final Logger log = Logger.getLogger(JMXCapability.class);
-   
+
    public JMXCapability()
    {
       super(MBeanServer.class.getName());
-      
+
       addSystemProperty("org.jboss.osgi.jmx.host", System.getProperty("jboss.bind.address", "localhost"));
       addSystemProperty("org.jboss.osgi.jmx.rmi.port", "1198");
-      
+
       addDependency(new CompendiumCapability());
-      
+
       addBundle("bundles/jboss-osgi-jmx.jar");
       addBundle("bundles/org.apache.aries.jmx.jar");
    }
@@ -75,6 +75,10 @@ public class JMXCapability extends Capability
    @Override
    public void start(OSGiRuntime runtime) throws BundleException
    {
+      // Explicitly create the MBeanServer, so we don't get into
+      // a race condition with jboss-osgi-jmx also creating one
+      runtime.getMBeanServer();
+
       super.start(runtime);
       assertMBeanRegistration(runtime, true);
    }
@@ -88,32 +92,44 @@ public class JMXCapability extends Capability
 
    private void assertMBeanRegistration(OSGiRuntime runtime, boolean state)
    {
+      log.debug("assertMBeanRegistration: " + state);
+
       MBeanServer server = (MBeanServer)runtime.getMBeanServer();
       ObjectName fwkName = ObjectNameFactory.create(FrameworkMBean.OBJECTNAME);
       ObjectName bndName = ObjectNameFactory.create(BundleStateMBean.OBJECTNAME);
       ObjectName srvName = ObjectNameFactory.create(ServiceStateMBean.OBJECTNAME);
-      
+
       int timeout = 5000;
-      while ( 0 < (timeout -= 200))
+      while (0 < (timeout -= 200))
       {
-         if (server.isRegistered(fwkName) != state || server.isRegistered(bndName) != state || server.isRegistered(srvName) != state)
+         boolean fwkCheck = checkMBean(server, fwkName, state);
+         boolean bndCheck = checkMBean(server, bndName, state);
+         boolean srvCheck = checkMBean(server, srvName, state);
+         if (fwkCheck == true && bndCheck == true && srvCheck == true)
+            break;
+         
+         try
          {
-            try
-            {
-               Thread.sleep(200);
-            }
-            catch (InterruptedException e)
-            {
-               // ignore
-            }
+            Thread.sleep(200);
+         }
+         catch (InterruptedException e)
+         {
+            // ignore
          }
       }
-      
-      if (server.isRegistered(fwkName) != state)
+
+      if (checkMBean(server, fwkName, state) == false)
          log.warn("FrameworkMBean " + (state ? "not" : "still") + " registered");
-      if (server.isRegistered(bndName) != state)
+      if (checkMBean(server, bndName, state) == false)
          log.warn("BundleStateMBean " + (state ? "not" : "still") + " registered");
-      if (server.isRegistered(srvName) != state)
+      if (checkMBean(server, srvName, state) == false)
          log.warn("ServiceStateMBean " + (state ? "not" : "still") + " registered");
+   }
+
+   protected boolean checkMBean(MBeanServer server, ObjectName oname, boolean state)
+   {
+      boolean registered = server.isRegistered(oname);
+      log.debug(oname + " registered: " + registered);
+      return registered == state;
    }
 }
