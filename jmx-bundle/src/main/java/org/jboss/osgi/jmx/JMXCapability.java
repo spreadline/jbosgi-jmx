@@ -93,7 +93,7 @@ public class JMXCapability extends Capability
       ObjectName bndName = ObjectNameFactory.create(BundleStateMBean.OBJECTNAME);
       ObjectName srvName = ObjectNameFactory.create(ServiceStateMBean.OBJECTNAME);
       
-      int timeout = 2000;
+      int timeout = 5000;
       while ( 0 < (timeout -= 200))
       {
          if (server.isRegistered(fwkName) != state || server.isRegistered(bndName) != state || server.isRegistered(srvName) != state)
