@@ -81,8 +81,8 @@
     
     <!-- Test Dependencies -->
     <dependency>
-      <groupId>org.jboss.osgi.runtime</groupId>
-      <artifactId>jboss-osgi-runtime-felix</artifactId>
+      <groupId>org.jboss.osgi.felix</groupId>
+      <artifactId>jboss-osgi-felix</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

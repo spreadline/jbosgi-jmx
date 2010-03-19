@@ -61,21 +61,25 @@ public class PackageStateExt extends AbstractState implements PackageStateMBeanE
       return new StandardMBean(this, PackageStateMBeanExt.class);
    }
 
-   public long getExportingBundle(String arg0, String arg1) throws IOException
+   @Override
+   public long[] getExportingBundles(String arg0, String arg1) throws IOException
    {
-      return getPackageStateMBean().getExportingBundle(arg0, arg1);
+      return getPackageStateMBean().getExportingBundles(arg0, arg1);
    }
 
-   public long[] getImportingBundles(String arg0, String arg1) throws IOException
+   @Override
+   public long[] getImportingBundles(String arg0, String arg1, long arg2) throws IOException
    {
-      return getPackageStateMBean().getImportingBundles(arg0, arg1);
+      return getPackageStateMBean().getImportingBundles(arg0, arg1, arg2);
    }
 
-   public boolean isRemovalPending(String arg0, String arg1) throws IOException
+   @Override
+   public boolean isRemovalPending(String arg0, String arg1, long arg2) throws IOException
    {
-      return getPackageStateMBean().isRemovalPending(arg0, arg1);
+      return getPackageStateMBean().isRemovalPending(arg0, arg1, arg2);
    }
 
+   @Override
    public TabularData listPackages() throws IOException
    {
       return getPackageStateMBean().listPackages();

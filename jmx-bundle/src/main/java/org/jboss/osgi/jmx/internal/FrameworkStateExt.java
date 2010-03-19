@@ -74,126 +74,151 @@ public class FrameworkStateExt extends AbstractState implements FrameworkMBeanEx
       getFrameworkMBean().refreshBundle(bundleIdentifier);
    }
 
+   @Override
    public boolean resolveBundles(long[] bundleIdentifiers) throws IOException
    {
       return getFrameworkMBean().resolveBundles(bundleIdentifiers);
    }
 
+   @Override
    public boolean resolveBundle(long arg0) throws IOException
    {
       return getFrameworkMBean().resolveBundle(arg0);
    }
 
+   @Override
    public int getFrameworkStartLevel() throws IOException
    {
       return getFrameworkMBean().getFrameworkStartLevel();
    }
 
+   @Override
    public int getInitialBundleStartLevel() throws IOException
    {
       return getFrameworkMBean().getInitialBundleStartLevel();
    }
 
-   public long installBundle(String arg0, String arg1) throws IOException
+   @Override
+   public long installBundleFromURL(String arg0, String arg1) throws IOException
    {
-      return getFrameworkMBean().installBundle(arg0, arg1);
+      return getFrameworkMBean().installBundleFromURL(arg0, arg1);
    }
 
+   @Override
    public long installBundle(String arg0) throws IOException
    {
       return getFrameworkMBean().installBundle(arg0);
    }
 
-   public CompositeData installBundles(String[] arg0, String[] arg1) throws IOException
+   @Override
+   public CompositeData installBundlesFromURL(String[] arg0, String[] arg1) throws IOException
    {
-      return getFrameworkMBean().installBundles(arg0, arg1);
+      return getFrameworkMBean().installBundlesFromURL(arg0, arg1);
    }
 
+   @Override
    public CompositeData installBundles(String[] arg0) throws IOException
    {
       return getFrameworkMBean().installBundles(arg0);
    }
 
+   @Override
    public void restartFramework() throws IOException
    {
       getFrameworkMBean().restartFramework();
    }
 
+   @Override
    public void setBundleStartLevel(long arg0, int arg1) throws IOException
    {
       getFrameworkMBean().setBundleStartLevel(arg0, arg1);
    }
 
+   @Override
    public CompositeData setBundleStartLevels(long[] arg0, int[] arg1) throws IOException
    {
       return getFrameworkMBean().setBundleStartLevels(arg0, arg1);
    }
 
+   @Override
    public void setFrameworkStartLevel(int arg0) throws IOException
    {
       getFrameworkMBean().setFrameworkStartLevel(arg0);
    }
 
+   @Override
    public void setInitialBundleStartLevel(int arg0) throws IOException
    {
       getFrameworkMBean().setInitialBundleStartLevel(arg0);
    }
 
+   @Override
    public void shutdownFramework() throws IOException
    {
       getFrameworkMBean().shutdownFramework();
    }
 
+   @Override
    public void startBundle(long arg0) throws IOException
    {
       getFrameworkMBean().startBundle(arg0);
    }
 
+   @Override
    public CompositeData startBundles(long[] arg0) throws IOException
    {
       return getFrameworkMBean().startBundles(arg0);
    }
 
+   @Override
    public void stopBundle(long arg0) throws IOException
    {
       getFrameworkMBean().stopBundle(arg0);
    }
 
+   @Override
    public CompositeData stopBundles(long[] arg0) throws IOException
    {
       return getFrameworkMBean().stopBundles(arg0);
    }
 
+   @Override
    public void uninstallBundle(long arg0) throws IOException
    {
       getFrameworkMBean().uninstallBundle(arg0);
    }
 
+   @Override
    public CompositeData uninstallBundles(long[] arg0) throws IOException
    {
       return getFrameworkMBean().uninstallBundles(arg0);
    }
 
-   public void updateBundle(long arg0, String arg1) throws IOException
+   @Override
+   public void updateBundleFromURL(long arg0, String arg1) throws IOException
    {
-      getFrameworkMBean().updateBundle(arg0, arg1);
+      getFrameworkMBean().updateBundleFromURL(arg0, arg1);
    }
 
+   @Override
    public void updateBundle(long arg0) throws IOException
    {
       getFrameworkMBean().updateBundle(arg0);
    }
 
-   public CompositeData updateBundles(long[] arg0, String[] arg1) throws IOException
+   @Override
+   public CompositeData updateBundlesFromURL(long[] arg0, String[] arg1) throws IOException
    {
-      return getFrameworkMBean().updateBundles(arg0, arg1);
+      return getFrameworkMBean().updateBundlesFromURL(arg0, arg1);
    }
 
+   @Override
    public CompositeData updateBundles(long[] arg0) throws IOException
    {
       return getFrameworkMBean().updateBundles(arg0);
    }
 
+   @Override
    public void updateFramework() throws IOException
    {
       getFrameworkMBean().updateFramework();

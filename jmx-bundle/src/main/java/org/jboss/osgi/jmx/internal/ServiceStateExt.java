@@ -130,7 +130,7 @@ public class ServiceStateExt extends AbstractState implements ServiceStateMBeanE
       items.put(USING_BUNDLES, usingArr);
 
       // [TODO] Remove once ServiceType does not require this item any more
-      items.put(PROPERTIES, getProperties(serviceId));
+      //items.put(PROPERTIES, getProperties(serviceId));
 
       CompositeDataSupport compData;
       try
@@ -144,26 +144,31 @@ public class ServiceStateExt extends AbstractState implements ServiceStateMBeanE
       return compData;
    }
 
+   @Override
    public long getBundleIdentifier(long arg0) throws IOException
    {
       return getServiceStateMBean().getBundleIdentifier(arg0);
    }
 
+   @Override
    public String[] getObjectClass(long arg0) throws IOException
    {
       return getServiceStateMBean().getObjectClass(arg0);
    }
 
+   @Override
    public TabularData getProperties(long arg0) throws IOException
    {
       return getServiceStateMBean().getProperties(arg0);
    }
 
+   @Override
    public long[] getUsingBundles(long arg0) throws IOException
    {
       return getServiceStateMBean().getUsingBundles(arg0);
    }
 
+   @Override
    public TabularData listServices() throws IOException
    {
       return getServiceStateMBean().listServices();
