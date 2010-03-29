@@ -19,7 +19,7 @@
   
   <groupId>org.jboss.osgi.jmx</groupId>
   <artifactId>jboss-osgi-jmx-api</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   <!-- Parent -->
@@ -43,11 +43,4 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
-  
-
-  <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/jboss-osgi/projects/bundles/jmx/tags/jboss-osgi-jmx-api-1.0.4</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/jboss-osgi/projects/bundles/jmx/tags/jboss-osgi-jmx-api-1.0.4</developerConnection>
-    <url>http://fisheye.jboss.com/qsearch/JBossOSGi/jboss-osgi-jmx-api/tags/jboss-osgi-jmx-api-1.0.4</url>
-  </scm>
 </project>
