@@ -31,14 +31,18 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
+import org.jboss.logging.Logger;
 import org.jboss.osgi.jmx.FrameworkMBeanExt;
 import org.jboss.osgi.jmx.MBeanProxy;
 import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.jboss.osgi.jmx.ServiceStateMBeanExt;
 import org.jboss.osgi.testing.OSGiFrameworkTest;
-import org.jboss.osgi.testing.OSGiTestHelper;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.osgi.framework.Bundle;
 import org.osgi.jmx.framework.BundleStateMBean;
+import org.osgi.jmx.framework.FrameworkMBean;
+import org.osgi.jmx.framework.ServiceStateMBean;
 
 /**
  * An abstract JMX test case.
@@ -48,14 +52,26 @@ import org.osgi.jmx.framework.BundleStateMBean;
  */
 public abstract class AbstractJMXTestCase extends OSGiFrameworkTest
 {
+   // Provide logging
+   private static final Logger log = Logger.getLogger(AbstractJMXTestCase.class);
+   
    private MBeanServer server;
    
    @BeforeClass
    public static void setUpClass() throws Exception
    {
+      // Install/Start the jboss-osgi-jmx bundle
       String bundleName = System.getProperty("project.build.finalName");
       URL bundleURL = new File("target/" + bundleName + ".jar").toURI().toURL();
-      systemContext.installBundle(bundleURL.toExternalForm());
+      Bundle bundle = systemContext.installBundle(bundleURL.toExternalForm());
+      bundle.start();
+   }
+
+   @Before
+   public void setUp() throws Exception
+   {
+      super.setUp();
+      assertMBeanRegistration(true);
    }
 
    protected FrameworkMBeanExt getFrameworkMBean() throws Exception
@@ -91,5 +107,48 @@ public abstract class AbstractJMXTestCase extends OSGiFrameworkTest
             server = MBeanServerFactory.createMBeanServer();
       }
       return server;
+   }
+
+   private void assertMBeanRegistration(boolean state)
+   {
+      log.debug("assertMBeanRegistration: " + state);
+
+      MBeanServer server = (MBeanServer)getMBeanServer();
+      ObjectName fwkName = ObjectNameFactory.create(FrameworkMBean.OBJECTNAME);
+      ObjectName bndName = ObjectNameFactory.create(BundleStateMBean.OBJECTNAME);
+      ObjectName srvName = ObjectNameFactory.create(ServiceStateMBean.OBJECTNAME);
+
+      int timeout = 5000;
+      while (0 < (timeout -= 200))
+      {
+         boolean fwkCheck = checkMBean(server, fwkName, state);
+         boolean bndCheck = checkMBean(server, bndName, state);
+         boolean srvCheck = checkMBean(server, srvName, state);
+         if (fwkCheck == true && bndCheck == true && srvCheck == true)
+            break;
+         
+         try
+         {
+            Thread.sleep(200);
+         }
+         catch (InterruptedException e)
+         {
+            // ignore
+         }
+      }
+
+      if (checkMBean(server, fwkName, state) == false)
+         log.warn("FrameworkMBean " + (state ? "not" : "still") + " registered");
+      if (checkMBean(server, bndName, state) == false)
+         log.warn("BundleStateMBean " + (state ? "not" : "still") + " registered");
+      if (checkMBean(server, srvName, state) == false)
+         log.warn("ServiceStateMBean " + (state ? "not" : "still") + " registered");
+   }
+
+   private boolean checkMBean(MBeanServer server, ObjectName oname, boolean state)
+   {
+      boolean registered = server.isRegistered(oname);
+      log.debug(oname + " registered: " + registered);
+      return registered == state;
    }
 }
