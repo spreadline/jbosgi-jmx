@@ -26,12 +26,8 @@ package org.jboss.osgi.jmx.internal;
 import java.io.IOException;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.StringRefAddr;
 
 import org.jboss.logging.Logger;
 import org.jboss.osgi.jmx.JMXConstantsExt;
@@ -54,7 +50,6 @@ public class JMXServiceActivator implements BundleActivator
    private JMXConnectorService jmxConnector;
    private String jmxHost;
    private String jmxRmiPort;
-   private String rmiAdaptorPath;
    private MBeanServer mbeanServer;
    private FrameworkStateExt frameworkState;
    private ServiceStateExt serviceState;
@@ -94,12 +89,8 @@ public class JMXServiceActivator implements BundleActivator
       if (jmxRmiPort == null)
          jmxRmiPort = "1098";
 
-      rmiAdaptorPath = context.getProperty(JMXConstantsExt.REMOTE_JMX_RMI_ADAPTOR);
-      if (rmiAdaptorPath == null)
-         rmiAdaptorPath = "jmx/invoker/RMIAdaptor";
-
       // Start tracking the NamingService
-      InitialContextTracker tracker = new InitialContextTracker(context, rmiAdaptorPath);
+      InitialContextTracker tracker = new InitialContextTracker(context);
       tracker.open();
    }
 
@@ -126,13 +117,9 @@ public class JMXServiceActivator implements BundleActivator
 
    class InitialContextTracker extends ServiceTracker
    {
-      private String rmiAdaptorPath;
-      private boolean rmiAdaptorBound;
-
-      public InitialContextTracker(BundleContext context, String rmiAdaptorPath)
+      public InitialContextTracker(BundleContext context)
       {
          super(context, InitialContext.class.getName(), null);
-         this.rmiAdaptorPath = rmiAdaptorPath;
       }
 
       @Override
@@ -153,59 +140,18 @@ public class JMXServiceActivator implements BundleActivator
             // Assume that the JMXConnector is already running if we cannot start it 
             log.debug("Assume JMXConnectorServer already running on: " + serviceURL);
          }
-
-         try
-         {
-            // Check if the RMIAdaptor is already bound
-            iniCtx.lookup(rmiAdaptorPath);
-         }
-         catch (NamingException lookupEx)
-         {
-            // Bind the RMIAdaptor
-            try
-            {
-               iniCtx.createSubcontext("jmx").createSubcontext("invoker");
-               StringRefAddr addr = new StringRefAddr(JMXServiceURL.class.getName(), serviceURL.toString());
-               Reference ref = new Reference(MBeanServerConnection.class.getName(), addr, RMIAdaptorFactory.class.getName(), null);
-               iniCtx.bind(rmiAdaptorPath, ref);
-               rmiAdaptorBound = true;
-
-               log.info("MBeanServerConnection bound to: " + rmiAdaptorPath);
-            }
-            catch (NamingException ex)
-            {
-               log.error("Cannot bind RMIAdaptor", ex);
-            }
-         }
          return iniCtx;
       }
 
       @Override
       public void removedService(ServiceReference reference, Object service)
       {
-         InitialContext iniCtx = (InitialContext)service;
-
          // Stop JMXConnectorService
          if (jmxConnector != null)
          {
             jmxConnector.stop();
             jmxConnector = null;
          }
-
-         // Unbind the RMIAdaptor
-         if (rmiAdaptorBound == true)
-         {
-            try
-            {
-               iniCtx.unbind(rmiAdaptorPath);
-               log.info("MBeanServerConnection unbound from: " + rmiAdaptorPath);
-            }
-            catch (NamingException ex)
-            {
-               log.error("Cannot unbind RMIAdaptor", ex);
-            }
-         }
-
          super.removedService(reference, service);
       }
    }

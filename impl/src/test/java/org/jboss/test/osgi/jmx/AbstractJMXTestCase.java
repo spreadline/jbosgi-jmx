@@ -24,10 +24,12 @@ package org.jboss.test.osgi.jmx;
 //$Id$
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
 import javax.management.MBeanServer;
+import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
@@ -109,7 +111,7 @@ public abstract class AbstractJMXTestCase extends OSGiFrameworkTest
       return server;
    }
 
-   private void assertMBeanRegistration(boolean state)
+   private void assertMBeanRegistration(boolean state) throws IOException
    {
       log.debug("assertMBeanRegistration: " + state);
 
@@ -121,9 +123,9 @@ public abstract class AbstractJMXTestCase extends OSGiFrameworkTest
       int timeout = 5000;
       while (0 < (timeout -= 200))
       {
-         boolean fwkCheck = checkMBean(server, fwkName, state);
-         boolean bndCheck = checkMBean(server, bndName, state);
-         boolean srvCheck = checkMBean(server, srvName, state);
+         boolean fwkCheck = isMBeanRegistered(server, fwkName, state);
+         boolean bndCheck = isMBeanRegistered(server, bndName, state);
+         boolean srvCheck = isMBeanRegistered(server, srvName, state);
          if (fwkCheck == true && bndCheck == true && srvCheck == true)
             break;
          
@@ -137,15 +139,15 @@ public abstract class AbstractJMXTestCase extends OSGiFrameworkTest
          }
       }
 
-      if (checkMBean(server, fwkName, state) == false)
+      if (isMBeanRegistered(server, fwkName, state) == false)
          log.warn("FrameworkMBean " + (state ? "not" : "still") + " registered");
-      if (checkMBean(server, bndName, state) == false)
+      if (isMBeanRegistered(server, bndName, state) == false)
          log.warn("BundleStateMBean " + (state ? "not" : "still") + " registered");
-      if (checkMBean(server, srvName, state) == false)
+      if (isMBeanRegistered(server, srvName, state) == false)
          log.warn("ServiceStateMBean " + (state ? "not" : "still") + " registered");
    }
 
-   private boolean checkMBean(MBeanServer server, ObjectName oname, boolean state)
+   protected boolean isMBeanRegistered(MBeanServerConnection server, ObjectName oname, boolean state) throws IOException
    {
       boolean registered = server.isRegistered(oname);
       log.debug(oname + " registered: " + registered);

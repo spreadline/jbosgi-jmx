@@ -19,14 +19,13 @@
   
   <groupId>org.jboss.osgi.jmx</groupId>
   <artifactId>jboss-osgi-jmx-api</artifactId>
-  <version>1.0.5-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   <!-- Parent -->
   <parent>
     <groupId>org.jboss.osgi.jmx</groupId>
     <artifactId>jboss-osgi-jmx-parent</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
 
   <!-- Dependencies -->
