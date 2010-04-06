@@ -23,6 +23,8 @@ package org.jboss.test.osgi.jmx;
 
 //$Id$
 
+import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.management.MBeanServer;
@@ -33,12 +35,9 @@ import org.jboss.osgi.jmx.FrameworkMBeanExt;
 import org.jboss.osgi.jmx.MBeanProxy;
 import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.jboss.osgi.jmx.ServiceStateMBeanExt;
-import org.jboss.osgi.spi.framework.OSGiBootstrap;
-import org.jboss.osgi.spi.framework.OSGiBootstrapProvider;
-import org.junit.AfterClass;
+import org.jboss.osgi.testing.OSGiFrameworkTest;
+import org.jboss.osgi.testing.OSGiTestHelper;
 import org.junit.BeforeClass;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.launch.Framework;
 import org.osgi.jmx.framework.BundleStateMBean;
 
 /**
@@ -47,34 +46,18 @@ import org.osgi.jmx.framework.BundleStateMBean;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2010
  */
-public abstract class AbstractTestCase
+public abstract class AbstractJMXTestCase extends OSGiFrameworkTest
 {
-   private static Framework framework;
    private MBeanServer server;
    
    @BeforeClass
    public static void setUpClass() throws Exception
    {
-      OSGiBootstrapProvider bootProvider = OSGiBootstrap.getBootstrapProvider();
-      framework = bootProvider.getFramework();
-      framework.start();
+      String bundleName = System.getProperty("project.build.finalName");
+      URL bundleURL = new File("target/" + bundleName + ".jar").toURI().toURL();
+      systemContext.installBundle(bundleURL.toExternalForm());
    }
 
-   @AfterClass
-   public static void tearDownClass() throws Exception
-   {
-      if (framework != null)
-      {
-         framework.stop();
-         framework.waitForStop(3000);
-      }
-   }
-
-   protected BundleContext getSystemContext()
-   {
-      return framework.getBundleContext();
-   }
-   
    protected FrameworkMBeanExt getFrameworkMBean() throws Exception
    {
       ObjectName oname = ObjectNameFactory.create(FrameworkMBeanExt.OBJECTNAME);

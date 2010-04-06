@@ -38,7 +38,7 @@ import org.osgi.jmx.framework.FrameworkMBean;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2010
  */
-public class FrameworkTestCase extends AbstractTestCase
+public class FrameworkTestCase extends AbstractJMXTestCase
 {
    @Test
    public void testMBeanAccess() throws Exception

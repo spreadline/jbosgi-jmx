@@ -43,12 +43,12 @@ import org.osgi.jmx.framework.ServiceStateMBean;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2010
  */
-public class ServiceStateTestCase extends AbstractTestCase
+public class ServiceStateTestCase extends AbstractJMXTestCase
 {
    @Test
    public void listServices() throws Exception
    {
-      ServiceReference[] srefs = getSystemContext().getServiceReferences(null, null);
+      ServiceReference[] srefs = systemContext.getServiceReferences(null, null);
       
       ServiceStateMBeanExt serviceState = getServiceStateMBean();
       TabularData data = serviceState.listServices();
@@ -75,7 +75,7 @@ public class ServiceStateTestCase extends AbstractTestCase
    @Test
    public void getServices() throws Exception
    {
-      ServiceReference sref = getSystemContext().getServiceReference(MBeanServer.class.getName());
+      ServiceReference sref = systemContext.getServiceReference(MBeanServer.class.getName());
       Long serviceID = (Long)sref.getProperty(Constants.SERVICE_ID);
       
       ServiceStateMBeanExt serviceState = getServiceStateMBean();

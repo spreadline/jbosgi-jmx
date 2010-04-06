@@ -48,8 +48,8 @@
   </properties>
   
   <modules>
-    <module>jmx-api</module>
-    <module>jmx-bundle</module>
+    <module>api</module>
+    <module>impl</module>
   </modules>
   
   <!-- Dependencies -->

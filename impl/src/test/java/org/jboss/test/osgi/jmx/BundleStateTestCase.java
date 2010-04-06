@@ -41,7 +41,7 @@ import org.osgi.jmx.framework.BundleStateMBean;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2010
  */
-public class BundleStateTestCase extends AbstractTestCase
+public class BundleStateTestCase extends AbstractJMXTestCase
 {
    @Test
    public void testMBeanAccess() throws Exception
@@ -53,7 +53,7 @@ public class BundleStateTestCase extends AbstractTestCase
    @Test
    public void listBundles() throws Exception
    {
-      Bundle[] bundles = getSystemContext().getBundles();
+      Bundle[] bundles = systemContext.getBundles();
       BundleStateMBean bundleState = getBundleStateMBean();
       TabularData data = bundleState.listBundles();
       assertEquals("Number of bundles", bundles.length, data.size());

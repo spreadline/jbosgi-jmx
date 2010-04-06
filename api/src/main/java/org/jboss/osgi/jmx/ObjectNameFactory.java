@@ -21,7 +21,7 @@
  */
 package org.jboss.osgi.jmx;
 
-// $Id: ObjectNameFactory.java 101072 2010-02-17 13:55:15Z thomas.diesler@jboss.com $
+// $Id$
 
 import java.util.Hashtable;
 

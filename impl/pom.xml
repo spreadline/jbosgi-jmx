@@ -168,27 +168,6 @@
         </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>build-test-jars</id>
-            <phase>integration-test</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <tasks>
-                <property name="maven.runtime.classpath" refid="maven.runtime.classpath" />
-                <property name="artifactId" value="${artifactId}" />
-                <property name="tests.output.dir" value="${project.build.directory}" />
-                <property name="build.artifact" value="${project.build.finalName}" />
-                <ant antfile="scripts/antrun-test-jars.xml" />
-              </tasks>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <skip>true</skip>
@@ -211,6 +190,10 @@
                 <property>
                   <name>log4j.output.dir</name>
                   <value>${project.build.directory}</value>
+                </property>
+                <property>
+                  <name>project.build.finalName</name>
+                  <value>${project.build.finalName}</value>
                 </property>
                 <property>
                   <name>test.archive.directory</name>
