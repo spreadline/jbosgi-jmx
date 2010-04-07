@@ -37,4 +37,6 @@ public interface JMXConstantsExt
    String REMOTE_JMX_RMI_PORT = "org.jboss.osgi.jmx.rmi.port";
    /** The property that sets the JNDI name the RMIAdaptor binds to: org.jboss.osgi.jmx.rmi.adaptor */
    String REMOTE_JMX_RMI_ADAPTOR = "org.jboss.osgi.jmx.rmi.adaptor";
+   /** The default JNDI name the RMIAdaptor binds to: osgi/jmx/RMIAdaptor */
+   String REMOTE_JMX_RMI_ADAPTOR_NAME = "osgi/jmx/RMIAdaptor";
 }

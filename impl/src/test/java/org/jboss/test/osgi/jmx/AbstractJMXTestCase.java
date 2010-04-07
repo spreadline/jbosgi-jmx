@@ -60,7 +60,7 @@ public abstract class AbstractJMXTestCase extends OSGiFrameworkTest
    private MBeanServer server;
    
    @BeforeClass
-   public static void setUpClass() throws Exception
+   public static void beforeAbstractJMXTestCase() throws Exception
    {
       // Install/Start the jboss-osgi-jmx bundle
       String bundleName = System.getProperty("project.build.finalName");
