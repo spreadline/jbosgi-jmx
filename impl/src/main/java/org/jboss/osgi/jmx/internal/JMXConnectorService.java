@@ -26,7 +26,6 @@ package org.jboss.osgi.jmx.internal;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -78,19 +77,6 @@ public class JMXConnectorService
          log.debug("No RMI registry running at host=" + host + ",port=" + regPort + ".  Will create one.");
          rmiRegistry = LocateRegistry.createRegistry(regPort, null, new DefaultSocketFactory(InetAddress.getByName(host)));
          shutdownRegistry = true;
-      }
-   }
-
-   static JMXServiceURL getServiceURL(String host, int conPort, int regPort)
-   {
-      String jmxConnectorURL = "service:jmx:rmi://" + host + ":" + conPort + "/jndi/rmi://" + host + ":" + regPort + "/osgi-jmx-connector";
-      try
-      {
-         return new JMXServiceURL(jmxConnectorURL);
-      }
-      catch (MalformedURLException e)
-      {
-         throw new IllegalArgumentException("Invalid connector URL: " + jmxConnectorURL);
       }
    }
 

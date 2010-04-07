@@ -44,6 +44,7 @@ import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
 import org.jboss.logging.Logger;
+import org.jboss.osgi.jmx.JMXServiceURLFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -154,7 +155,7 @@ public class JMXServiceActivator implements BundleActivator
          
          int conPort = Integer.parseInt(jmxRmiPort);
          int regPort = Integer.parseInt(rmiRegistryPort);
-         JMXServiceURL serviceURL = JMXConnectorService.getServiceURL(jmxHost, conPort, regPort);
+         JMXServiceURL serviceURL = JMXServiceURLFactory.getServiceURL(jmxHost, conPort, regPort);
          try
          {
             jmxConnector = new JMXConnectorService(serviceURL, regPort);
