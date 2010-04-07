@@ -23,6 +23,15 @@ package org.jboss.osgi.jmx.internal;
 
 //$Id$
 
+import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_JMX_RMI_ADAPTOR;
+import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_JMX_HOST;
+import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_JMX_RMI_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_HOST;
+import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_RMI_ADAPTOR;
+import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_RMI_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_RMI_REGISTRY_PORT;
+
 import java.io.IOException;
 
 import javax.management.MBeanServer;
@@ -35,7 +44,6 @@ import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
 import org.jboss.logging.Logger;
-import org.jboss.osgi.jmx.JMXConstantsExt;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -55,6 +63,7 @@ public class JMXServiceActivator implements BundleActivator
    private JMXConnectorService jmxConnector;
    private String jmxHost;
    private String jmxRmiPort;
+   private String rmiRegistryPort;
    private String rmiAdaptorName;
    private MBeanServer mbeanServer;
    private FrameworkStateExt frameworkState;
@@ -87,20 +96,24 @@ public class JMXServiceActivator implements BundleActivator
       packageState = new PackageStateExt(sysContext, mbeanServer);
       packageState.start();
 
-      jmxHost = context.getProperty(JMXConstantsExt.REMOTE_JMX_HOST);
+      jmxHost = context.getProperty(REMOTE_JMX_HOST);
       if (jmxHost == null)
-         jmxHost = "localhost";
+         jmxHost = DEFAULT_REMOTE_JMX_HOST;
 
-      jmxRmiPort = context.getProperty(JMXConstantsExt.REMOTE_JMX_RMI_PORT);
+      jmxRmiPort = context.getProperty(REMOTE_JMX_RMI_PORT);
       if (jmxRmiPort == null)
-         jmxRmiPort = "1098";
+         jmxRmiPort = DEFAULT_REMOTE_JMX_RMI_PORT;
 
-      rmiAdaptorName = context.getProperty(JMXConstantsExt.REMOTE_JMX_RMI_ADAPTOR);
+      rmiRegistryPort = context.getProperty(REMOTE_JMX_RMI_REGISTRY_PORT);
+      if (rmiRegistryPort == null)
+         rmiRegistryPort = DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT;
+
+      rmiAdaptorName = context.getProperty(REMOTE_JMX_RMI_ADAPTOR);
       if (rmiAdaptorName == null)
-         rmiAdaptorName = JMXConstantsExt.REMOTE_JMX_RMI_ADAPTOR_NAME;
+         rmiAdaptorName = DEFAULT_JMX_RMI_ADAPTOR;
 
       // Start tracking the NamingService
-      InitialContextTracker tracker = new InitialContextTracker(context, rmiAdaptorName);
+      InitialContextTracker tracker = new InitialContextTracker(context);
       tracker.open();
    }
 
@@ -127,63 +140,55 @@ public class JMXServiceActivator implements BundleActivator
 
    class InitialContextTracker extends ServiceTracker
    {
-      private String rmiAdaptorName;
       private boolean rmiAdaptorBound;
 
-      public InitialContextTracker(BundleContext context, String rmiAdaptorName)
+      public InitialContextTracker(BundleContext context)
       {
          super(context, InitialContext.class.getName(), null);
-         this.rmiAdaptorName = rmiAdaptorName;
       }
 
       @Override
       public Object addingService(ServiceReference reference)
       {
          InitialContext iniCtx = (InitialContext)super.addingService(reference);
-
-         JMXServiceURL serviceURL = JMXConnectorService.getServiceURL(jmxHost, Integer.parseInt(jmxRmiPort));
+         
+         int conPort = Integer.parseInt(jmxRmiPort);
+         int regPort = Integer.parseInt(rmiRegistryPort);
+         JMXServiceURL serviceURL = JMXConnectorService.getServiceURL(jmxHost, conPort, regPort);
          try
          {
-            // Try to start the JMXConnector, this should fail if it is already running
-            // [TODO] is there a better way to check whether the connector is already running?
-            jmxConnector = new JMXConnectorService(mbeanServer, jmxHost, Integer.parseInt(jmxRmiPort));
-            jmxConnector.start();
+            jmxConnector = new JMXConnectorService(serviceURL, regPort);
+            jmxConnector.start(mbeanServer);
          }
          catch (IOException ex)
          {
-            // Assume that the JMXConnector is already running if we cannot start it 
-            log.debug("Assume JMXConnectorServer already running on: " + serviceURL);
+            log.error("Cannot start JMXConnectorServer on: " + serviceURL, ex);
+            return iniCtx;
          }
 
+         // Bind the RMIAdaptor
          try
          {
-            // Check if the RMIAdaptor is already bound
-            iniCtx.lookup(rmiAdaptorName);
-         }
-         catch (NamingException lookupEx)
-         {
-            // Bind the RMIAdaptor
-            try
+            String[] tokens = rmiAdaptorName.split("/");
+            Context ctx = iniCtx;
+            for (int i = 0; i < tokens.length - 1; i++)
             {
-               String[] tokens = rmiAdaptorName.split("/");
-               Context ctx = iniCtx;
-               for (int i = 0; i < tokens.length - 1; i++)
-               {
-                  String token = tokens[i];
-                  ctx = ctx.createSubcontext(token);
-               }
-               StringRefAddr addr = new StringRefAddr(JMXServiceURL.class.getName(), serviceURL.toString());
-               Reference ref = new Reference(MBeanServerConnection.class.getName(), addr, RMIAdaptorFactory.class.getName(), null);
-               iniCtx.bind(rmiAdaptorName, ref);
-               rmiAdaptorBound = true;
+               String token = tokens[i];
+               ctx = ctx.createSubcontext(token);
+            }
+            StringRefAddr addr = new StringRefAddr(JMXServiceURL.class.getName(), serviceURL.toString());
+            Reference ref = new Reference(MBeanServerConnection.class.getName(), addr, RMIAdaptorFactory.class.getName(), null);
+            iniCtx.bind(rmiAdaptorName, ref);
+            rmiAdaptorBound = true;
 
-               log.info("MBeanServerConnection bound to: " + rmiAdaptorName);
-            }
-            catch (NamingException ex)
-            {
-               log.error("Cannot bind RMIAdaptor", ex);
-            }
+            log.debug("MBeanServerConnection bound to: " + rmiAdaptorName);
          }
+         catch (NamingException ex)
+         {
+            log.error("Cannot bind RMIAdaptor", ex);
+            return iniCtx;
+         }
+         
          return iniCtx;
       }
 

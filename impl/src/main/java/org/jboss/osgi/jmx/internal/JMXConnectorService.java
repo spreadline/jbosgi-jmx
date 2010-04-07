@@ -24,9 +24,10 @@ package org.jboss.osgi.jmx.internal;
 //$Id$
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.rmi.RemoteException;
+import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -48,38 +49,41 @@ public class JMXConnectorService
 {
    // Provide logging
    private static final Logger log = Logger.getLogger(JMXConnectorService.class);
-   
+
    private JMXServiceURL serviceURL;
    private JMXConnectorServer jmxConnectorServer;
    private boolean shutdownRegistry;
    private Registry rmiRegistry;
 
-   public JMXConnectorService(MBeanServer mbeanServer, String host, int rmiPort) throws IOException
+   static class RemoteObj implements Remote, Serializable
    {
-      // check to see if registry already created
-      rmiRegistry = LocateRegistry.getRegistry(host, rmiPort);
+      private static final long serialVersionUID = 1L;
+   }
+   
+   public JMXConnectorService(JMXServiceURL serviceURL, int regPort) throws IOException
+   {
+      this.serviceURL = serviceURL;
+
+      String host = serviceURL.getHost();
+      
+      // Check to see if registry already created
+      rmiRegistry = LocateRegistry.getRegistry(host, regPort);
       try
       {
          rmiRegistry.list();
-         log.debug("RMI registry running at host=" + host + ",port=" + rmiPort);
+         log.debug("RMI registry running at host=" + host + ",port=" + regPort);
       }
-      catch (RemoteException e)
+      catch (Exception ex)
       {
-         log.debug("No RMI registry running at host=" + host + ",port=" + rmiPort + ".  Will create one.");
-         rmiRegistry = LocateRegistry.createRegistry(rmiPort, null, new DefaultSocketFactory(InetAddress.getByName(host)));
+         log.debug("No RMI registry running at host=" + host + ",port=" + regPort + ".  Will create one.");
+         rmiRegistry = LocateRegistry.createRegistry(regPort, null, new DefaultSocketFactory(InetAddress.getByName(host)));
          shutdownRegistry = true;
       }
-
-      // create new connector server and start it
-      serviceURL = getServiceURL(host, rmiPort);
-      jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, null, mbeanServer);
-
-      log.debug("JMXConnectorServer created: " + serviceURL);
    }
 
-   static JMXServiceURL getServiceURL(String host, int rmiPort)
+   static JMXServiceURL getServiceURL(String host, int conPort, int regPort)
    {
-      String jmxConnectorURL = "service:jmx:rmi://" + host + "/jndi/rmi://" + host + ":" + rmiPort + "/jmxconnector";
+      String jmxConnectorURL = "service:jmx:rmi://" + host + ":" + conPort + "/jndi/rmi://" + host + ":" + regPort + "/osgi-jmx-connector";
       try
       {
          return new JMXServiceURL(jmxConnectorURL);
@@ -90,34 +94,20 @@ public class JMXConnectorService
       }
    }
 
-   public void start()
+   public void start(MBeanServer mbeanServer) throws IOException
    {
-      ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
-      try
-      {
-         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+      // create new connector server and start it
+      jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, null, mbeanServer);
+      log.debug("JMXConnectorServer created: " + serviceURL);
 
-         jmxConnectorServer.start();
-
-         log.debug("JMXConnectorServer started: " + serviceURL);
-      }
-      catch (IOException ex)
-      {
-         log.error("Cannot start JMXConnectorServer", ex);
-      }
-      finally
-      {
-         Thread.currentThread().setContextClassLoader(ctxLoader);
-      }
+      jmxConnectorServer.start();
+      log.debug("JMXConnectorServer started: " + serviceURL);
    }
 
    public void stop()
    {
-      ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
       try
       {
-         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-
          jmxConnectorServer.stop();
 
          // Shutdown the registry if this service created it
@@ -132,10 +122,6 @@ public class JMXConnectorService
       catch (IOException ex)
       {
          log.warn("Cannot stop JMXConnectorServer", ex);
-      }
-      finally
-      {
-         Thread.currentThread().setContextClassLoader(ctxLoader);
       }
    }
 }

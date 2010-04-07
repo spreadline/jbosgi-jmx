@@ -194,10 +194,6 @@
               <argLine>${surefire.jpda.args}</argLine>
               <systemProperties>
                 <property>
-                  <name>java.protocol.handler.pkgs</name>
-                  <value>org.jboss.net.protocol|org.jboss.virtual.protocol</value>
-                </property>
-                <property>
                   <name>log4j.output.dir</name>
                   <value>${project.build.directory}</value>
                 </property>

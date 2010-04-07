@@ -30,14 +30,20 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.jboss.logging.Logger;
+
 public class RMIAdaptor implements MBeanServerConnection, Serializable
 {
-   private static final long serialVersionUID = 6066226353118090215L;
+   private static final long serialVersionUID = -360532663805790477L;
 
-   private MBeanServerConnection delegate;
+   // Provide logging
+   private transient final Logger log = Logger.getLogger(RMIAdaptor.class);
+   
+   private transient MBeanServerConnection delegate;
 
    public RMIAdaptor(JMXServiceURL url) throws IOException
    {
+      log.debug("Connect JMXConnector to: " + url);
       JMXConnector jmxc = JMXConnectorFactory.connect(url, null);
       delegate = jmxc.getMBeanServerConnection();
    }

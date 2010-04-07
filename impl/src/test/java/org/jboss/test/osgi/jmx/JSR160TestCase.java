@@ -23,7 +23,7 @@ package org.jboss.test.osgi.jmx;
 
 //$Id: ServiceStateTestCase.java 103562 2010-04-06 10:25:15Z thomas.diesler@jboss.com $
 
-import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_RMI_ADAPTOR_NAME;
+import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_JMX_RMI_ADAPTOR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -54,7 +54,7 @@ public class JSR160TestCase extends AbstractJMXTestCase
    public void testJMXConnector() throws Exception
    {
       // The address of the connector server
-      JMXServiceURL address = new JMXServiceURL("service:jmx:rmi://localhost/jndi/rmi://localhost:1098/jmxconnector");
+      JMXServiceURL address = new JMXServiceURL("service:jmx:rmi://localhost:1198/jndi/rmi://localhost:1090/osgi-jmx-connector");
 
       // The environment map, null in this case
       Map<String, ?> environment = null;
@@ -82,7 +82,7 @@ public class JSR160TestCase extends AbstractJMXTestCase
    public void testRMIAdaptor() throws Exception
    {
       InitialContext iniCtx = getInitialContext();
-      MBeanServerConnection mbsc = (MBeanServerConnection)iniCtx.lookup(REMOTE_JMX_RMI_ADAPTOR_NAME);
+      MBeanServerConnection mbsc = (MBeanServerConnection)iniCtx.lookup(DEFAULT_JMX_RMI_ADAPTOR);
 
       // Call the remote MBeanServer
       String domain = mbsc.getDefaultDomain();
