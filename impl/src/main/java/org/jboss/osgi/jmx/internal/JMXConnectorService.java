@@ -24,9 +24,7 @@ package org.jboss.osgi.jmx.internal;
 //$Id$
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetAddress;
-import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -54,11 +52,6 @@ public class JMXConnectorService
    private boolean shutdownRegistry;
    private Registry rmiRegistry;
 
-   static class RemoteObj implements Remote, Serializable
-   {
-      private static final long serialVersionUID = 1L;
-   }
-   
    public JMXConnectorService(JMXServiceURL serviceURL, int regPort) throws IOException
    {
       this.serviceURL = serviceURL;
