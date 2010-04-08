@@ -23,7 +23,6 @@ package org.jboss.test.osgi.jmx;
 
 //$Id: ServiceStateTestCase.java 103562 2010-04-06 10:25:15Z thomas.diesler@jboss.com $
 
-import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_JMX_RMI_ADAPTOR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -34,8 +33,8 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import javax.naming.InitialContext;
 
+import org.jboss.osgi.jmx.JMXServiceURLFactory;
 import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.junit.Test;
 import org.osgi.jmx.framework.BundleStateMBean;
@@ -54,35 +53,16 @@ public class JSR160TestCase extends AbstractJMXTestCase
    public void testJMXConnector() throws Exception
    {
       // The address of the connector server
-      JMXServiceURL address = new JMXServiceURL("service:jmx:rmi://localhost:1198/jndi/rmi://localhost:1090/osgi-jmx-connector");
+      JMXServiceURL serviceURL = JMXServiceURLFactory.getServiceURL(getServerHost(), null, null);
 
       // The environment map, null in this case
       Map<String, ?> environment = null;
 
       // Create the JMXCconnectorServer
-      JMXConnector cntor = JMXConnectorFactory.connect(address, environment);
+      JMXConnector cntor = JMXConnectorFactory.connect(serviceURL, environment);
 
       // Obtain a "stub" for the remote MBeanServer
       MBeanServerConnection mbsc = cntor.getMBeanServerConnection();
-
-      // Call the remote MBeanServer
-      String domain = mbsc.getDefaultDomain();
-      assertEquals("DefaultDomain", domain);
-      
-      ObjectName fwkName = ObjectNameFactory.create(FrameworkMBean.OBJECTNAME);
-      ObjectName bndName = ObjectNameFactory.create(BundleStateMBean.OBJECTNAME);
-      ObjectName srvName = ObjectNameFactory.create(ServiceStateMBean.OBJECTNAME);
-
-      assertTrue(isMBeanRegistered(mbsc, fwkName, true));
-      assertTrue(isMBeanRegistered(mbsc, bndName, true));
-      assertTrue(isMBeanRegistered(mbsc, srvName, true));
-   }
-
-   @Test
-   public void testRMIAdaptor() throws Exception
-   {
-      InitialContext iniCtx = getInitialContext();
-      MBeanServerConnection mbsc = (MBeanServerConnection)iniCtx.lookup(DEFAULT_JMX_RMI_ADAPTOR);
 
       // Call the remote MBeanServer
       String domain = mbsc.getDefaultDomain();

@@ -39,7 +39,7 @@ import javax.management.remote.JMXServiceURL;
 import org.jboss.logging.Logger;
 
 /**
- * A Service Activator that registers an MBeanServer
+ * A RMI/JRMP connector service.
  * 
  * @author thomas.diesler@jboss.com
  * @since 24-Apr-2009

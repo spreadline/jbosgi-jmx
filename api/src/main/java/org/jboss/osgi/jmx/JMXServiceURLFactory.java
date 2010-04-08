@@ -23,6 +23,13 @@ package org.jboss.osgi.jmx;
 
 //$Id: JMXConnectorService.java 103656 2010-04-07 20:02:31Z thomas.diesler@jboss.com $
 
+import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_JMX_HOST;
+import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_JMX_RMI_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_HOST;
+import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_RMI_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_RMI_REGISTRY_PORT;
+
 import java.net.MalformedURLException;
 
 import javax.management.remote.JMXServiceURL;
@@ -35,9 +42,23 @@ import javax.management.remote.JMXServiceURL;
  */
 public abstract class JMXServiceURLFactory
 {
-   public static JMXServiceURL getServiceURL(String host, int conPort, int regPort)
+   public static JMXServiceURL getServiceURL()
    {
-      String jmxConnectorURL = "service:jmx:rmi://" + host + ":" + conPort + "/jndi/rmi://" + host + ":" + regPort + "/osgi-jmx-connector";
+      return getServiceURL(null, null, null);
+   }
+   
+   public static JMXServiceURL getServiceURL(String host, Integer jmxPort, Integer rmiPort)
+   {
+      if (host == null)
+         host = System.getProperty(REMOTE_JMX_HOST, DEFAULT_REMOTE_JMX_HOST);
+
+      if (jmxPort == null)
+         jmxPort = Integer.parseInt(System.getProperty(REMOTE_JMX_RMI_PORT, DEFAULT_REMOTE_JMX_RMI_PORT));
+
+      if (rmiPort == null)
+         rmiPort = Integer.parseInt(System.getProperty(REMOTE_JMX_RMI_REGISTRY_PORT, DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT));
+
+      String jmxConnectorURL = "service:jmx:rmi://" + host + ":" + jmxPort + "/jndi/rmi://" + host + ":" + rmiPort + "/osgi-jmx-connector";
       try
       {
          return new JMXServiceURL(jmxConnectorURL);
