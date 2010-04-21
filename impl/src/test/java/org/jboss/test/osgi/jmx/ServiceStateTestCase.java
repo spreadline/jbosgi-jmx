@@ -50,7 +50,7 @@ public class ServiceStateTestCase extends AbstractJMXTestCase
    {
       ServiceReference[] srefs = systemContext.getServiceReferences(null, null);
       
-      ServiceStateMBeanExt serviceState = getServiceStateMBean();
+      ServiceStateMBean serviceState = getServiceStateMBean();
       TabularData data = serviceState.listServices();
       assertEquals("Number of services", srefs.length, data.size());
    }
@@ -58,7 +58,7 @@ public class ServiceStateTestCase extends AbstractJMXTestCase
    @Test
    public void getService() throws Exception
    {
-      ServiceStateMBeanExt serviceState = getServiceStateMBean();
+      ServiceStateMBeanExt serviceState = (ServiceStateMBeanExt)getServiceStateMBean();
       CompositeData serviceData = serviceState.getService(MBeanServer.class.getName());
       assertNotNull("MBeanServer service not null", serviceData);
       
@@ -78,7 +78,7 @@ public class ServiceStateTestCase extends AbstractJMXTestCase
       ServiceReference sref = systemContext.getServiceReference(MBeanServer.class.getName());
       Long serviceID = (Long)sref.getProperty(Constants.SERVICE_ID);
       
-      ServiceStateMBeanExt serviceState = getServiceStateMBean();
+      ServiceStateMBeanExt serviceState = (ServiceStateMBeanExt)getServiceStateMBean();
       TabularData data = serviceState.getServices(null, "(service.id=" + serviceID + ")");
       assertEquals("MBeanServer service not null", 1, data.size());
    }

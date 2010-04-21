@@ -34,10 +34,7 @@ import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
 import org.jboss.logging.Logger;
-import org.jboss.osgi.jmx.FrameworkMBeanExt;
-import org.jboss.osgi.jmx.MBeanProxy;
 import org.jboss.osgi.jmx.ObjectNameFactory;
-import org.jboss.osgi.jmx.ServiceStateMBeanExt;
 import org.jboss.osgi.testing.OSGiFrameworkTest;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -76,24 +73,6 @@ public abstract class AbstractJMXTestCase extends OSGiFrameworkTest
       assertMBeanRegistration(true);
    }
 
-   protected FrameworkMBeanExt getFrameworkMBean() throws Exception
-   {
-      ObjectName oname = ObjectNameFactory.create(FrameworkMBeanExt.OBJECTNAME);
-      return MBeanProxy.get(getMBeanServer(), oname, FrameworkMBeanExt.class);
-   }
-   
-   protected BundleStateMBean getBundleStateMBean() throws Exception
-   {
-      ObjectName oname = ObjectNameFactory.create(BundleStateMBean.OBJECTNAME);
-      return MBeanProxy.get(getMBeanServer(), oname, BundleStateMBean.class);
-   }
-   
-   protected ServiceStateMBeanExt getServiceStateMBean() throws Exception
-   {
-      ObjectName oname = ObjectNameFactory.create(ServiceStateMBeanExt.OBJECTNAME);
-      return MBeanProxy.get(getMBeanServer(), oname, ServiceStateMBeanExt.class);
-   }
-   
    protected MBeanServer getMBeanServer()
    {
       if (server == null)
