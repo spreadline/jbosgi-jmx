@@ -30,21 +30,24 @@
     <version>1.0.6-SNAPSHOT</version>
   </parent>
 
+  <!-- SCM -->
+  <scm>
+    <connection>scm:git://github.com/jbosgi/jbosgi-jmx.git</connection>
+    <developerConnection>scm:git@github.com:jbosgi/jbosgi-jmx.git</developerConnection>
+    <url>http://github.com/jbosgi/jbosgi-jmx</url>
+  </scm>
+
   <!-- Properties -->
   <properties>
     <version.apache.aries.jmx>0.1-incubating-20100329</version.apache.aries.jmx>
-    <version.apache.felix.log>1.0.0</version.apache.felix.log>
-    <version.jboss.osgi.common>1.0.4</version.jboss.osgi.common>
-    <version.jboss.osgi.common.core>2.2.13.GA</version.jboss.osgi.common.core>
-    <version.jboss.osgi.jndi>1.0.3</version.jboss.osgi.jndi>
     <version.jboss.osgi.spi>1.0.7-SNAPSHOT</version.jboss.osgi.spi>
-    <version.jboss.osgi.felix>2.0.4</version.jboss.osgi.felix>
     <version.osgi>4.2.0</version.osgi>
   </properties>
   
   <modules>
     <module>api</module>
-    <module>impl</module>
+    <module>bundle</module>
+    <module>itest</module>
   </modules>
   
   <!-- Dependencies -->
@@ -61,34 +64,9 @@
         <version>${version.apache.aries.jmx}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.apache.felix.log</artifactId>
-        <version>${version.apache.felix.log}</version>
-      </dependency>
-      <dependency>
         <groupId>org.jboss.osgi</groupId>
         <artifactId>jboss-osgi-spi</artifactId>
         <version>${version.jboss.osgi.spi}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.osgi.bundles</groupId>
-        <artifactId>jboss-osgi-common</artifactId>
-        <version>${version.jboss.osgi.common}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.osgi.bundles</groupId>
-        <artifactId>jboss-osgi-common-core</artifactId>
-        <version>${version.jboss.osgi.common.core}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.osgi.jndi</groupId>
-        <artifactId>jboss-osgi-jndi</artifactId>
-        <version>${version.jboss.osgi.jndi}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.osgi.felix</groupId>
-        <artifactId>jboss-osgi-felix</artifactId>
-        <version>${version.jboss.osgi.felix}</version>
       </dependency>
       
       <!-- OSGi Dependencies -->

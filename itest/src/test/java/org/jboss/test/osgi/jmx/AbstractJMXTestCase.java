@@ -60,8 +60,8 @@ public abstract class AbstractJMXTestCase extends OSGiFrameworkTest
    public static void beforeAbstractJMXTestCase() throws Exception
    {
       // Install/Start the jboss-osgi-jmx bundle
-      String bundleName = System.getProperty("project.build.finalName");
-      URL bundleURL = new File("target/" + bundleName + ".jar").toURI().toURL();
+      String bundleName = "jboss-osgi-jmx-" + System.getProperty("project.version");
+      URL bundleURL = new File("../bundle/target/" + bundleName + ".jar").toURI().toURL();
       Bundle bundle = systemContext.installBundle(bundleURL.toExternalForm());
       bundle.start();
    }
