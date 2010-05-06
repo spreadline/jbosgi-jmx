@@ -34,17 +34,14 @@ import java.io.IOException;
 
 import javax.management.MBeanServer;
 import javax.management.remote.JMXServiceURL;
-import javax.naming.InitialContext;
 
 import org.jboss.logging.Logger;
 import org.jboss.osgi.jmx.JMXServiceURLFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * A BundleActivator for the MBeanServer related services
+ * A BundleActivator for JMX related services
  * 
  * @author thomas.diesler@jboss.com
  * @since 24-Apr-2009
@@ -101,9 +98,20 @@ public class JMXServiceActivator implements BundleActivator
       if (rmiPortStr == null)
          rmiPortStr = DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT;
 
-      // Start tracking the NamingService
-      InitialContextTracker tracker = new InitialContextTracker(context);
-      tracker.open();
+      int jmxPort = Integer.parseInt(jmxPortStr);
+      int rmiPort = Integer.parseInt(rmiPortStr);
+      
+      // Start the JSR160 connector
+      JMXServiceURL serviceURL = JMXServiceURLFactory.getServiceURL(jmxHost, jmxPort, rmiPort);
+      try
+      {
+         jmxConnector = new JMXConnectorService(serviceURL, rmiPort);
+         jmxConnector.start(mbeanServer);
+      }
+      catch (IOException ex)
+      {
+         log.error("Cannot start JMXConnectorServer on: " + serviceURL, ex);
+      }
    }
 
    public void stop(BundleContext context)
@@ -124,49 +132,6 @@ public class JMXServiceActivator implements BundleActivator
       {
          jmxConnector.stop();
          jmxConnector = null;
-      }
-   }
-
-   class InitialContextTracker extends ServiceTracker
-   {
-      public InitialContextTracker(BundleContext context)
-      {
-         super(context, InitialContext.class.getName(), null);
-      }
-
-      @Override
-      public Object addingService(ServiceReference reference)
-      {
-         InitialContext iniCtx = (InitialContext)super.addingService(reference);
-         
-         int jmxPort = Integer.parseInt(jmxPortStr);
-         int rmiPort = Integer.parseInt(rmiPortStr);
-         JMXServiceURL serviceURL = JMXServiceURLFactory.getServiceURL(jmxHost, jmxPort, rmiPort);
-         try
-         {
-            jmxConnector = new JMXConnectorService(serviceURL, rmiPort);
-            jmxConnector.start(mbeanServer);
-         }
-         catch (IOException ex)
-         {
-            log.error("Cannot start JMXConnectorServer on: " + serviceURL, ex);
-            return iniCtx;
-         }
-
-         return iniCtx;
-      }
-
-      @Override
-      public void removedService(ServiceReference reference, Object service)
-      {
-         // Stop JMXConnectorService
-         if (jmxConnector != null)
-         {
-            jmxConnector.stop();
-            jmxConnector = null;
-         }
-
-         super.removedService(reference, service);
       }
    }
 }
