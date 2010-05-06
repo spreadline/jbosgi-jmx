@@ -24,6 +24,7 @@ package org.jboss.osgi.jmx.internal;
 //$Id$
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.management.MBeanServer;
 import javax.management.NotCompliantMBeanException;
@@ -31,6 +32,7 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.management.openmbean.CompositeData;
 
+import org.jboss.logging.Logger;
 import org.jboss.osgi.jmx.FrameworkMBeanExt;
 import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.osgi.framework.BundleContext;
@@ -44,6 +46,8 @@ import org.osgi.jmx.framework.FrameworkMBean;
  */
 public class FrameworkStateExt extends AbstractState implements FrameworkMBeanExt
 {
+   // Provide logging
+   private static final Logger log = Logger.getLogger(FrameworkStateExt.class);
    
    public FrameworkStateExt(BundleContext context, MBeanServer mbeanServer)
    {
@@ -63,159 +67,225 @@ public class FrameworkStateExt extends AbstractState implements FrameworkMBeanEx
    }
 
    @Override
-   public void refreshBundles(long[] bundleIdentifiers) throws IOException
+   public void refreshBundles(long[] bundleIds) throws IOException
    {
-      getFrameworkMBean().refreshBundles(bundleIdentifiers);
+      if (log.isTraceEnabled())
+         log.trace("refreshBundles " + (bundleIds != null ? Arrays.asList(bundleIds) : null));
+      getFrameworkMBean().refreshBundles(bundleIds);
    }
 
    @Override
-   public void refreshBundle(long bundleIdentifier) throws IOException
+   public void refreshBundle(long bundleId) throws IOException
    {
-      getFrameworkMBean().refreshBundle(bundleIdentifier);
+      if (log.isTraceEnabled())
+         log.trace("refreshBundle " + bundleId);
+      getFrameworkMBean().refreshBundle(bundleId);
    }
 
    @Override
-   public boolean resolveBundles(long[] bundleIdentifiers) throws IOException
+   public boolean resolveBundles(long[] bundleIds) throws IOException
    {
-      return getFrameworkMBean().resolveBundles(bundleIdentifiers);
+      boolean result = getFrameworkMBean().resolveBundles(bundleIds);
+      if (log.isTraceEnabled())
+         log.trace("resolveBundles " + (bundleIds != null ? Arrays.asList(bundleIds) : null) + " => " + result);
+      return result;
    }
 
    @Override
-   public boolean resolveBundle(long arg0) throws IOException
+   public boolean resolveBundle(long bundleId) throws IOException
    {
-      return getFrameworkMBean().resolveBundle(arg0);
+      boolean result = getFrameworkMBean().resolveBundle(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("resolveBundle " + bundleId + " => " + result);
+      return result;
    }
 
    @Override
    public int getFrameworkStartLevel() throws IOException
    {
-      return getFrameworkMBean().getFrameworkStartLevel();
+      int result = getFrameworkMBean().getFrameworkStartLevel();
+      if (log.isTraceEnabled())
+         log.trace("getFrameworkStartLevel => " + result);
+      return result;
    }
 
    @Override
    public int getInitialBundleStartLevel() throws IOException
    {
-      return getFrameworkMBean().getInitialBundleStartLevel();
+      int result = getFrameworkMBean().getInitialBundleStartLevel();
+      if (log.isTraceEnabled())
+         log.trace("getInitialBundleStartLevel => " + result);
+      return result;
    }
 
    @Override
-   public long installBundleFromURL(String arg0, String arg1) throws IOException
+   public long installBundleFromURL(String location, String url) throws IOException
    {
-      return getFrameworkMBean().installBundleFromURL(arg0, arg1);
+      long result = getFrameworkMBean().installBundleFromURL(location, url);
+      if (log.isTraceEnabled())
+         log.trace("installBundleFromURL [location=" + location + ",url=" + url + "] => " + result);
+      return result;
    }
 
    @Override
-   public long installBundle(String arg0) throws IOException
+   public long installBundle(String location) throws IOException
    {
-      return getFrameworkMBean().installBundle(arg0);
+      long result = getFrameworkMBean().installBundle(location);
+      if (log.isTraceEnabled())
+         log.trace("installBundle [location=" + location + "] => " + result);
+      return result;
    }
 
    @Override
-   public CompositeData installBundlesFromURL(String[] arg0, String[] arg1) throws IOException
+   public CompositeData installBundlesFromURL(String[] locations, String[] urls) throws IOException
    {
-      return getFrameworkMBean().installBundlesFromURL(arg0, arg1);
+      CompositeData result = getFrameworkMBean().installBundlesFromURL(locations, urls);
+      if (log.isTraceEnabled())
+         log.trace("installBundlesFromURL [locations=" + Arrays.asList(locations) + ",urls=" + Arrays.asList(urls) + "] => " + result);
+      return result;
    }
 
    @Override
-   public CompositeData installBundles(String[] arg0) throws IOException
+   public CompositeData installBundles(String[] locations) throws IOException
    {
-      return getFrameworkMBean().installBundles(arg0);
+      CompositeData result = getFrameworkMBean().installBundles(locations);
+      if (log.isTraceEnabled())
+         log.trace("installBundles [locations=" + Arrays.asList(locations) + "] => " + result);
+      return result;
+   }
+
+   @Override
+   public void updateBundleFromURL(long bundleId, String url) throws IOException
+   {
+      if (log.isTraceEnabled())
+         log.trace("updateBundleFromURL [bundleId=" + bundleId + ",url=" + url + "]");
+      getFrameworkMBean().updateBundleFromURL(bundleId, url);
+   }
+
+   @Override
+   public void updateBundle(long bundleId) throws IOException
+   {
+      if (log.isTraceEnabled())
+         log.trace("updateBundle: " + bundleId);
+      getFrameworkMBean().updateBundle(bundleId);
+   }
+
+   @Override
+   public CompositeData updateBundlesFromURL(long[] bundleIds, String[] urls) throws IOException
+   {
+      CompositeData result = getFrameworkMBean().updateBundlesFromURL(bundleIds, urls);
+      if (log.isTraceEnabled())
+         log.trace("updateBundlesFromURL [bundleId=" + Arrays.asList(bundleIds) + ",url=" + Arrays.asList(urls) + "] => " + result);
+      return result;
+   }
+
+   @Override
+   public CompositeData updateBundles(long[] bundleIds) throws IOException
+   {
+      CompositeData result = getFrameworkMBean().updateBundles(bundleIds);
+      if (log.isTraceEnabled())
+         log.trace("updateBundles [bundleId=" + Arrays.asList(bundleIds) + "] => " + result);
+      return result;
+   }
+
+   @Override
+   public void uninstallBundle(long bundleId) throws IOException
+   {
+      if (log.isTraceEnabled())
+         log.trace("uninstallBundle: " + bundleId);
+      getFrameworkMBean().uninstallBundle(bundleId);
+   }
+
+   @Override
+   public CompositeData uninstallBundles(long[] bundleIds) throws IOException
+   {
+      CompositeData result = getFrameworkMBean().uninstallBundles(bundleIds);
+      if (log.isTraceEnabled())
+         log.trace("uninstallBundles: " + (bundleIds != null ? Arrays.asList(bundleIds) : null) + " => " + result);
+      return result;
    }
 
    @Override
    public void restartFramework() throws IOException
    {
+      if (log.isTraceEnabled())
+         log.trace("restartFramework");
       getFrameworkMBean().restartFramework();
    }
 
    @Override
-   public void setBundleStartLevel(long arg0, int arg1) throws IOException
+   public void setBundleStartLevel(long bundleId, int newlevel) throws IOException
    {
-      getFrameworkMBean().setBundleStartLevel(arg0, arg1);
+      if (log.isTraceEnabled())
+         log.trace("setBundleStartLevel [bundleid=" + bundleId + ",level=" + newlevel +"]");
+      getFrameworkMBean().setBundleStartLevel(bundleId, newlevel);
    }
 
    @Override
-   public CompositeData setBundleStartLevels(long[] arg0, int[] arg1) throws IOException
+   public CompositeData setBundleStartLevels(long[] bundleIds, int[] newlevels) throws IOException
    {
-      return getFrameworkMBean().setBundleStartLevels(arg0, arg1);
+      CompositeData result = getFrameworkMBean().setBundleStartLevels(bundleIds, newlevels);
+      if (log.isTraceEnabled())
+         log.trace("setBundleStartLevels [bundleids=" + Arrays.asList(bundleIds) + ",level=" + Arrays.asList(newlevels) +"]");
+      return result;
    }
 
    @Override
-   public void setFrameworkStartLevel(int arg0) throws IOException
+   public void setFrameworkStartLevel(int newlevel) throws IOException
    {
-      getFrameworkMBean().setFrameworkStartLevel(arg0);
+      if (log.isTraceEnabled())
+         log.trace("setFrameworkStartLevel [level=" + newlevel +"]");
+      getFrameworkMBean().setFrameworkStartLevel(newlevel);
    }
 
    @Override
-   public void setInitialBundleStartLevel(int arg0) throws IOException
+   public void setInitialBundleStartLevel(int newlevel) throws IOException
    {
-      getFrameworkMBean().setInitialBundleStartLevel(arg0);
+      if (log.isTraceEnabled())
+         log.trace("setInitialBundleStartLevel [level=" + newlevel +"]");
+      getFrameworkMBean().setInitialBundleStartLevel(newlevel);
    }
 
    @Override
    public void shutdownFramework() throws IOException
    {
+      if (log.isTraceEnabled())
+         log.trace("shutdownFramework");
       getFrameworkMBean().shutdownFramework();
    }
 
    @Override
-   public void startBundle(long arg0) throws IOException
+   public void startBundle(long bundleId) throws IOException
    {
-      getFrameworkMBean().startBundle(arg0);
+      if (log.isTraceEnabled())
+         log.trace("startBundle: " + bundleId);
+      getFrameworkMBean().startBundle(bundleId);
    }
 
    @Override
-   public CompositeData startBundles(long[] arg0) throws IOException
+   public CompositeData startBundles(long[] bundleIds) throws IOException
    {
-      return getFrameworkMBean().startBundles(arg0);
+      CompositeData result = getFrameworkMBean().startBundles(bundleIds);
+      if (log.isTraceEnabled())
+         log.trace("startBundles: " + (bundleIds != null ? Arrays.asList(bundleIds) : null) + " => " + result);
+      return result;
    }
 
    @Override
-   public void stopBundle(long arg0) throws IOException
+   public void stopBundle(long bundleId) throws IOException
    {
-      getFrameworkMBean().stopBundle(arg0);
+      if (log.isTraceEnabled())
+         log.trace("stopBundle: " + bundleId);
+      getFrameworkMBean().stopBundle(bundleId);
    }
 
    @Override
-   public CompositeData stopBundles(long[] arg0) throws IOException
+   public CompositeData stopBundles(long[] bundleIds) throws IOException
    {
-      return getFrameworkMBean().stopBundles(arg0);
-   }
-
-   @Override
-   public void uninstallBundle(long arg0) throws IOException
-   {
-      getFrameworkMBean().uninstallBundle(arg0);
-   }
-
-   @Override
-   public CompositeData uninstallBundles(long[] arg0) throws IOException
-   {
-      return getFrameworkMBean().uninstallBundles(arg0);
-   }
-
-   @Override
-   public void updateBundleFromURL(long arg0, String arg1) throws IOException
-   {
-      getFrameworkMBean().updateBundleFromURL(arg0, arg1);
-   }
-
-   @Override
-   public void updateBundle(long arg0) throws IOException
-   {
-      getFrameworkMBean().updateBundle(arg0);
-   }
-
-   @Override
-   public CompositeData updateBundlesFromURL(long[] arg0, String[] arg1) throws IOException
-   {
-      return getFrameworkMBean().updateBundlesFromURL(arg0, arg1);
-   }
-
-   @Override
-   public CompositeData updateBundles(long[] arg0) throws IOException
-   {
-      return getFrameworkMBean().updateBundles(arg0);
+      CompositeData result = getFrameworkMBean().stopBundles(bundleIds);
+      if (log.isTraceEnabled())
+         log.trace("stopBundles: " + (bundleIds != null ? Arrays.asList(bundleIds) : null) + " => " + result);
+      return result;
    }
 
    @Override

@@ -24,6 +24,7 @@ package org.jboss.osgi.jmx.internal;
 //$Id$
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.management.MBeanServer;
 import javax.management.NotCompliantMBeanException;
@@ -31,6 +32,7 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.management.openmbean.TabularData;
 
+import org.jboss.logging.Logger;
 import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.jboss.osgi.jmx.PackageStateMBeanExt;
 import org.osgi.framework.BundleContext;
@@ -44,11 +46,14 @@ import org.osgi.jmx.framework.BundleStateMBean;
  */
 public class PackageStateExt extends AbstractState implements PackageStateMBeanExt
 {
+   // Provide logging
+   private static final Logger log = Logger.getLogger(PackageStateExt.class);
+
    public PackageStateExt(BundleContext context, MBeanServer mbeanServer)
    {
       super(context, mbeanServer);
    }
-   
+
    @Override
    ObjectName getObjectName()
    {
@@ -62,26 +67,39 @@ public class PackageStateExt extends AbstractState implements PackageStateMBeanE
    }
 
    @Override
-   public long[] getExportingBundles(String arg0, String arg1) throws IOException
+   public long[] getExportingBundles(String packageName, String version) throws IOException
    {
-      return getPackageStateMBean().getExportingBundles(arg0, arg1);
+      long[] bundleIds = getPackageStateMBean().getExportingBundles(packageName, version);
+      if (log.isTraceEnabled())
+         log.trace("getExportingBundles [packageName=" + packageName + ",version=" + version + "] => " + (bundleIds != null ? Arrays.asList(bundleIds) : null));
+      return bundleIds;
    }
 
    @Override
-   public long[] getImportingBundles(String arg0, String arg1, long arg2) throws IOException
+   public long[] getImportingBundles(String packageName, String version, long exporter) throws IOException
    {
-      return getPackageStateMBean().getImportingBundles(arg0, arg1, arg2);
+      long[] bundleIds = getPackageStateMBean().getImportingBundles(packageName, version, exporter);
+      if (log.isTraceEnabled())
+         log.trace("getImportingBundles [packageName=" + packageName + ",version=" + version + ",exporter=" + exporter + "] => "
+               + (bundleIds != null ? Arrays.asList(bundleIds) : null));
+      return bundleIds;
    }
 
    @Override
-   public boolean isRemovalPending(String arg0, String arg1, long arg2) throws IOException
+   public boolean isRemovalPending(String packageName, String version, long exporter) throws IOException
    {
-      return getPackageStateMBean().isRemovalPending(arg0, arg1, arg2);
+      boolean removalPending = getPackageStateMBean().isRemovalPending(packageName, version, exporter);
+      if (log.isTraceEnabled())
+         log.trace("isRemovalPending [packageName=" + packageName + ",version=" + version + ",exporter=" + exporter + "] => " + removalPending);
+      return removalPending;
    }
 
    @Override
    public TabularData listPackages() throws IOException
    {
-      return getPackageStateMBean().listPackages();
+      TabularData packages = getPackageStateMBean().listPackages();
+      if (log.isTraceEnabled())
+         log.trace("listPackages: " + packages);
+      return packages;
    }
 }

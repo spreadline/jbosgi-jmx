@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -44,6 +46,7 @@ import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 
+import org.jboss.logging.Logger;
 import org.jboss.osgi.jmx.BundleStateMBeanExt;
 import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.osgi.framework.Bundle;
@@ -61,6 +64,9 @@ import org.osgi.service.packageadmin.PackageAdmin;
  */
 public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
 {
+   // Provide logging
+   private static final Logger log = Logger.getLogger(BundleStateExt.class);
+   
    public BundleStateExt(BundleContext context, MBeanServer mbeanServer)
    {
       super(context, mbeanServer);
@@ -82,10 +88,12 @@ public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
    public CompositeData getBundle(long bundleId) throws IOException
    {
       TabularData bundleList = listBundles();
-      CompositeData bundleData = bundleList.get(new Object[] { (Long)bundleId });
-      if (bundleData == null)
+      CompositeData compData = bundleList.get(new Object[] { (Long)bundleId });
+      if (compData == null)
          throw new IllegalArgumentException("No such bundle: " + bundleId);
-      return bundleData;
+      if (log.isTraceEnabled())
+         log.trace("getBundle: " + bundleId + " => " + compData);
+      return compData;
    }
 
    @Override
@@ -93,7 +101,10 @@ public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
    {
       BundleContext context = assertBundleContext(bundleId);
       File dataFile = context.getDataFile(filename);
-      return dataFile != null ? dataFile.getCanonicalPath() : null;
+      String result = dataFile != null ? dataFile.getCanonicalPath() : null;
+      if (log.isTraceEnabled())
+         log.trace("getDataFile [bundleId=" + bundleId + ",filename=" + filename + "] => " + result);
+      return result;
    }
 
    @Override
@@ -101,7 +112,10 @@ public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
    {
       Bundle bundle = assertBundle(bundleId);
       URL entry = bundle.getEntry(path);
-      return entry != null ? entry.toExternalForm() : null;
+      String result = entry != null ? entry.toExternalForm() : null;
+      if (log.isTraceEnabled())
+         log.trace("getEntry [bundleId=" + bundleId + ",path=" + path + "] => " + result);
+      return result;
    }
 
    @Override
@@ -109,7 +123,10 @@ public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
    {
       Bundle bundle = assertBundle(bundleId);
       URL resource = bundle.getResource(name);
-      return resource != null ? resource.toExternalForm() : null;
+      String result = resource != null ? resource.toExternalForm() : null;
+      if (log.isTraceEnabled())
+         log.trace("getResource [bundleId=" + bundleId + ",name=" + name + "] => " + result);
+      return result;
    }
 
    @Override
@@ -117,44 +134,50 @@ public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
    public TabularData getHeaders(long bundleId, String locale) throws IOException
    {
       Bundle bundle = assertBundle(bundleId);
-      List<Header> headers = new ArrayList<Header>();
+      List<Header> result = new ArrayList<Header>();
       Dictionary<String, String> bundleHeaders = bundle.getHeaders(locale);
       Enumeration<String> keys = bundleHeaders.keys();
       while (keys.hasMoreElements())
       {
          String key = keys.nextElement();
-         headers.add(new Header(key, bundleHeaders.get(key)));
+         result.add(new Header(key, bundleHeaders.get(key)));
       }
       TabularData headerTable = new TabularDataSupport(HEADERS_TYPE);
-      for (Header header : headers)
+      for (Header header : result)
       {
          headerTable.put(header.toCompositeData());
       }
+      if (log.isTraceEnabled())
+         log.trace("getHeaders [bundleId=" + bundleId + ",locale=" + locale + "] => " + result);
       return headerTable;
    }
 
    @Override
    public CompositeData getProperty(long bundleId, String key) throws IOException
    {
+      CompositeData result = null;
       BundleContext bundleContext = assertBundleContext(bundleId);
       String value = bundleContext.getProperty(key);
-      if (value == null)
-         return null;
-      
-      String type = value.getClass().getSimpleName();
-      
-      Map<String, Object> items = new HashMap<String, Object>();
-      items.put(JmxConstants.KEY, key);
-      items.put(JmxConstants.VALUE, value);
-      items.put(JmxConstants.TYPE, type);
-      try
+      if (value != null)
       {
-         return new CompositeDataSupport(JmxConstants.PROPERTY_TYPE, items);
+         String type = value.getClass().getSimpleName();
+         
+         Map<String, Object> items = new HashMap<String, Object>();
+         items.put(JmxConstants.KEY, key);
+         items.put(JmxConstants.VALUE, value);
+         items.put(JmxConstants.TYPE, type);
+         try
+         {
+            result = new CompositeDataSupport(JmxConstants.PROPERTY_TYPE, items);
+         }
+         catch (OpenDataException ex)
+         {
+            throw new JMRuntimeException("Failed to create CompositeData for property [" + key + ":" + value + "] - " + ex.getMessage());
+         }
       }
-      catch (OpenDataException ex)
-      {
-         throw new JMRuntimeException("Failed to create CompositeData for property [" + key + ":" + value + "] - " + ex.getMessage());
-      }
+      if (log.isTraceEnabled())
+         log.trace("getProperty [bundleId=" + bundleId + ",key=" + key + "] => " + result);
+      return result;
    }
 
    @Override
@@ -165,107 +188,170 @@ public class BundleStateExt extends AbstractState implements BundleStateMBeanExt
       ServiceReference sref = context.getServiceReference(PackageAdmin.class.getName());
       PackageAdmin service = (PackageAdmin)context.getService(sref);
       Bundle exporter = service.getBundle(clazz);
-      return exporter != null ? exporter.getBundleId() : 0;
+      long result = exporter != null ? exporter.getBundleId() : 0;
+      if (log.isTraceEnabled())
+         log.trace("loadClass [bundleId=" + bundleId + ",name=" + name + "] => " + result);
+      return result;
    }
 
-   public String[] getExportedPackages(long arg0) throws IOException
+   public String[] getExportedPackages(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getExportedPackages(arg0);
+      String[] result = getBundleStateMBean().getExportedPackages(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getExportedPackages [bundleId=" + bundleId + "] => " + result);
+      return result;
    }
 
-   public long[] getFragments(long arg0) throws IOException
+   public long[] getFragments(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getFragments(arg0);
+      long[] result = getBundleStateMBean().getFragments(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getFragments [bundleId=" + bundleId + "] => " + (result != null ? Arrays.asList(result) : null));
+      return result;
    }
 
-   public TabularData getHeaders(long arg0) throws IOException
+   public TabularData getHeaders(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getHeaders(arg0);
+      TabularData result = getBundleStateMBean().getHeaders(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getHeaders [bundleId=" + bundleId + "] => " + result);
+      return result;
    }
 
-   public long[] getHosts(long arg0) throws IOException
+   public long[] getHosts(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getHosts(arg0);
+      long[] result = getBundleStateMBean().getHosts(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getHosts [bundleId=" + bundleId + "] => " + (result != null ? Arrays.asList(result) : null));
+      return result;
    }
 
-   public String[] getImportedPackages(long arg0) throws IOException
+   public String[] getImportedPackages(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getImportedPackages(arg0);
+      String[] result = getBundleStateMBean().getImportedPackages(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getImportedPackages [bundleId=" + bundleId + "] => " + (result != null ? Arrays.asList(result) : null));
+      return result;
    }
 
-   public long getLastModified(long arg0) throws IOException
+   public long getLastModified(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getLastModified(arg0);
+      long result = getBundleStateMBean().getLastModified(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getLastModified [bundleId=" + bundleId + "] => " + new Date(result));
+      return result;
    }
 
-   public String getLocation(long arg0) throws IOException
+   public String getLocation(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getLocation(arg0);
+      String result = getBundleStateMBean().getLocation(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getLocation [bundleId=" + bundleId + "] => " + result);
+      return result;
    }
 
-   public long[] getRegisteredServices(long arg0) throws IOException
+   public long[] getRegisteredServices(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getRegisteredServices(arg0);
+      long[] result = getBundleStateMBean().getRegisteredServices(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getRegisteredServices [bundleId=" + bundleId + "] => " + (result != null ? Arrays.asList(result) : null));
+      return result;
    }
 
-   public long[] getRequiredBundles(long arg0) throws IOException
+   public long[] getRequiredBundles(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getRequiredBundles(arg0);
+      long[] result = getBundleStateMBean().getRequiredBundles(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getRequiredBundles [bundleId=" + bundleId + "] => " + (result != null ? Arrays.asList(result) : null));
+      return result;
    }
 
-   public long[] getRequiringBundles(long arg0) throws IOException
+   public long[] getRequiringBundles(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getRequiringBundles(arg0);
+      long[] result = getBundleStateMBean().getRequiringBundles(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getRequiringBundles [bundleId=" + bundleId + "] => " + (result != null ? Arrays.asList(result) : null));
+      return result;
    }
 
-   public long[] getServicesInUse(long arg0) throws IOException
+   public long[] getServicesInUse(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getServicesInUse(arg0);
+      long[] result = getBundleStateMBean().getServicesInUse(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getServicesInUse [bundleId=" + bundleId + "] => " + (result != null ? Arrays.asList(result) : null));
+      return result;
    }
 
-   public int getStartLevel(long arg0) throws IOException
+   public int getStartLevel(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getStartLevel(arg0);
+      int result = getBundleStateMBean().getStartLevel(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getStartLevel [bundleId=" + bundleId + "] => " + result);
+      return result;
    }
 
-   public String getState(long arg0) throws IOException
+   public String getState(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getState(arg0);
+      String result = getBundleStateMBean().getState(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getState [bundleId=" + bundleId + "] => " + result);
+      return result;
    }
 
-   public String getSymbolicName(long arg0) throws IOException
+   public String getSymbolicName(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getSymbolicName(arg0);
+      String result = getBundleStateMBean().getSymbolicName(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getSymbolicName [bundleId=" + bundleId + "] => " + result);
+      return result;
    }
 
-   public String getVersion(long arg0) throws IOException
+   public String getVersion(long bundleId) throws IOException
    {
-      return getBundleStateMBean().getVersion(arg0);
+      String result = getBundleStateMBean().getVersion(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("getVersion [bundleId=" + bundleId + "] => " + result);
+      return result;
    }
 
-   public boolean isFragment(long arg0) throws IOException
+   public boolean isFragment(long bundleId) throws IOException
    {
-      return getBundleStateMBean().isFragment(arg0);
+      boolean result = getBundleStateMBean().isFragment(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("isFragment [bundleId=" + bundleId + "] => " + result);
+      return result;
    }
 
-   public boolean isPersistentlyStarted(long arg0) throws IOException
+   public boolean isPersistentlyStarted(long bundleId) throws IOException
    {
-      return getBundleStateMBean().isPersistentlyStarted(arg0);
+      boolean result = getBundleStateMBean().isPersistentlyStarted(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("isPersistentlyStarted [bundleId=" + bundleId + "] => " + result);
+      return result;
    }
 
-   public boolean isRemovalPending(long arg0) throws IOException
+   public boolean isRemovalPending(long bundleId) throws IOException
    {
-      return getBundleStateMBean().isRemovalPending(arg0);
+      boolean result = getBundleStateMBean().isRemovalPending(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("isRemovalPending [bundleId=" + bundleId + "] => " + result);
+      return result;
    }
 
-   public boolean isRequired(long arg0) throws IOException
+   public boolean isRequired(long bundleId) throws IOException
    {
-      return getBundleStateMBean().isRequired(arg0);
+      boolean result = getBundleStateMBean().isRequired(bundleId);
+      if (log.isTraceEnabled())
+         log.trace("isRequired [bundleId=" + bundleId + "] => " + result);
+      return result;
    }
 
    public TabularData listBundles() throws IOException
    {
-      return getBundleStateMBean().listBundles();
+      TabularData result = getBundleStateMBean().listBundles();
+      if (log.isTraceEnabled())
+         log.trace("TabularData => " + result);
+      return result;
    }
 
    private Bundle assertBundle(long bundleId)

@@ -25,6 +25,7 @@ package org.jboss.osgi.jmx.internal;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 
+import org.jboss.logging.Logger;
 import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.jboss.osgi.jmx.ServiceStateMBeanExt;
 import org.osgi.framework.Bundle;
@@ -56,6 +58,9 @@ import org.osgi.jmx.framework.ServiceStateMBean;
  */
 public class ServiceStateExt extends AbstractState implements ServiceStateMBeanExt
 {
+   // Provide logging
+   private static final Logger log = Logger.getLogger(ServiceStateExt.class);
+   
    public ServiceStateExt(BundleContext context, MBeanServer mbeanServer)
    {
       super(context, mbeanServer);
@@ -76,16 +81,32 @@ public class ServiceStateExt extends AbstractState implements ServiceStateMBeanE
    @Override
    public CompositeData getService(String clazz) throws IOException
    {
+      boolean trace = log.isTraceEnabled();
+      if (trace)
+         log.trace("getService: " + clazz);
+      
       ServiceReference sref = context.getServiceReference(clazz);
       if (sref == null)
+      {
+         if (trace)
+            log.trace("Cannot find service");
          return null;
+      }
 
-      return getCompositeData(sref);
+      CompositeDataSupport compData = getCompositeData(sref);
+      if (trace)
+         log.trace("Found service: " + compData);
+      
+      return compData;
    }
 
    @Override
    public TabularData getServices(String clazz, String filter) throws IOException
    {
+      boolean trace = log.isTraceEnabled();
+      if (trace)
+         log.trace("getServices [clazz=" + clazz + ",filter=" + filter + "]");
+      
       ServiceReference[] srefs;
       try
       {
@@ -97,15 +118,20 @@ public class ServiceStateExt extends AbstractState implements ServiceStateMBeanE
       }
 
       if (srefs == null)
+      {
+         if (trace)
+            log.trace("Cannot find services");
          return null;
+      }
 
       TabularDataSupport tabularData = new TabularDataSupport(SERVICES_TYPE);
       for (ServiceReference sref : srefs)
       {
          CompositeDataSupport compData = getCompositeData(sref);
          tabularData.put(compData.get(IDENTIFIER), compData);
+         if (trace)
+            log.trace("Added service: " + compData);
       }
-
       return tabularData;
    }
 
@@ -145,32 +171,47 @@ public class ServiceStateExt extends AbstractState implements ServiceStateMBeanE
    }
 
    @Override
-   public long getBundleIdentifier(long arg0) throws IOException
+   public long getBundleIdentifier(long serviceId) throws IOException
    {
-      return getServiceStateMBean().getBundleIdentifier(arg0);
+      long bundleId = getServiceStateMBean().getBundleIdentifier(serviceId);
+      if (log.isTraceEnabled())
+         log.trace("getBundleIdentifier [serviceId=" + serviceId + "] => " + bundleId);
+      return bundleId;
    }
 
    @Override
-   public String[] getObjectClass(long arg0) throws IOException
+   public String[] getObjectClass(long serviceId) throws IOException
    {
-      return getServiceStateMBean().getObjectClass(arg0);
+      String[] objectClass = getServiceStateMBean().getObjectClass(serviceId);
+      if (log.isTraceEnabled())
+         log.trace("getObjectClass [serviceId=" + serviceId + "] => " + (objectClass != null ? Arrays.asList(objectClass) : null));
+      return objectClass;
    }
 
    @Override
-   public TabularData getProperties(long arg0) throws IOException
+   public TabularData getProperties(long serviceId) throws IOException
    {
-      return getServiceStateMBean().getProperties(arg0);
+      TabularData properties = getServiceStateMBean().getProperties(serviceId);
+      if (log.isTraceEnabled())
+         log.trace("getProperties [serviceId=" + serviceId + "] => " + properties);
+      return properties;
    }
 
    @Override
-   public long[] getUsingBundles(long arg0) throws IOException
+   public long[] getUsingBundles(long serviceId) throws IOException
    {
-      return getServiceStateMBean().getUsingBundles(arg0);
+      long[] usingBundles = getServiceStateMBean().getUsingBundles(serviceId);
+      if (log.isTraceEnabled())
+         log.trace("getUsingBundles [serviceId=" + serviceId + "] => " + (usingBundles != null ? Arrays.asList(usingBundles) : null));
+      return usingBundles;
    }
 
    @Override
    public TabularData listServices() throws IOException
    {
-      return getServiceStateMBean().listServices();
+      TabularData services = getServiceStateMBean().listServices();
+      if (log.isTraceEnabled())
+         log.trace("listServices: " + services);
+      return services;
    }
 }
