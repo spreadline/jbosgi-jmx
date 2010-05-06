@@ -32,6 +32,7 @@ import javax.management.openmbean.TabularData;
 
 import org.jboss.osgi.jmx.ServiceStateMBeanExt;
 import org.junit.Test;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.jmx.JmxConstants;
@@ -48,6 +49,7 @@ public class ServiceStateTestCase extends AbstractJMXTestCase
    @Test
    public void listServices() throws Exception
    {
+      BundleContext systemContext = getFramework().getBundleContext();
       ServiceReference[] srefs = systemContext.getServiceReferences(null, null);
       
       ServiceStateMBean serviceState = getServiceStateMBean();
@@ -75,6 +77,7 @@ public class ServiceStateTestCase extends AbstractJMXTestCase
    @Test
    public void getServices() throws Exception
    {
+      BundleContext systemContext = getFramework().getBundleContext();
       ServiceReference sref = systemContext.getServiceReference(MBeanServer.class.getName());
       Long serviceID = (Long)sref.getProperty(Constants.SERVICE_ID);
       

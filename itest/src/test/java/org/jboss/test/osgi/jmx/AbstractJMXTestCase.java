@@ -39,6 +39,7 @@ import org.jboss.osgi.testing.OSGiFrameworkTest;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.FrameworkMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
@@ -62,6 +63,8 @@ public abstract class AbstractJMXTestCase extends OSGiFrameworkTest
       // Install/Start the jboss-osgi-jmx bundle
       String bundleName = "jboss-osgi-jmx-" + System.getProperty("project.version");
       URL bundleURL = new File("../bundle/target/" + bundleName + ".jar").toURI().toURL();
+      
+      BundleContext systemContext = getFramework().getBundleContext();
       Bundle bundle = systemContext.installBundle(bundleURL.toExternalForm());
       bundle.start();
    }

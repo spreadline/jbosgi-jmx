@@ -33,6 +33,7 @@ import org.jboss.osgi.jmx.BundleStateMBeanExt;
 import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.jmx.framework.BundleStateMBean;
 
 /**
@@ -53,6 +54,7 @@ public class BundleStateTestCase extends AbstractJMXTestCase
    @Test
    public void listBundles() throws Exception
    {
+      BundleContext systemContext = getFramework().getBundleContext();
       Bundle[] bundles = systemContext.getBundles();
       BundleStateMBean bundleState = getBundleStateMBean();
       TabularData data = bundleState.listBundles();
