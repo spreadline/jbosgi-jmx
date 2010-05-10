@@ -40,6 +40,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.launch.Framework;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.FrameworkMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
@@ -58,13 +59,16 @@ public abstract class AbstractJMXTestCase extends OSGiFrameworkTest
    private MBeanServer server;
    
    @BeforeClass
-   public static void beforeAbstractJMXTestCase() throws Exception
+   public static void beforeClass() throws Exception
    {
       // Install/Start the jboss-osgi-jmx bundle
       String bundleName = "jboss-osgi-jmx-" + System.getProperty("project.version");
       URL bundleURL = new File("../bundle/target/" + bundleName + ".jar").toURI().toURL();
       
-      BundleContext systemContext = getFramework().getBundleContext();
+      Framework framework = createFramework();
+      framework.start();
+      
+      BundleContext systemContext = framework.getBundleContext();
       Bundle bundle = systemContext.installBundle(bundleURL.toExternalForm());
       bundle.start();
    }
