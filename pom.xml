@@ -21,7 +21,7 @@
   <artifactId>jboss-osgi-jmx-parent</artifactId>
   <packaging>pom</packaging>
   
-  <version>1.0.7-SNAPSHOT</version>
+  <version>1.0.7</version>
   
   <!-- Parent -->
   <parent>
