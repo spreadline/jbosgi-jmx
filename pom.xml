@@ -39,7 +39,7 @@
 
   <!-- Properties -->
   <properties>
-    <version.apache.aries.jmx>0.1-incubating-20100329</version.apache.aries.jmx>
+    <version.apache.aries.jmx>0.1-incubating</version.apache.aries.jmx>
     <version.jboss.osgi.spi>1.0.7</version.jboss.osgi.spi>
     <version.osgi>4.2.0</version.osgi>
   </properties>
