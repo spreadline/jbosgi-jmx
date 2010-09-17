@@ -25,15 +25,15 @@
   <parent>
     <groupId>org.jboss.osgi.jmx</groupId>
     <artifactId>jboss-osgi-jmx-parent</artifactId>
-    <version>1.0.8-SNAPSHOT</version>
+    <version>1.0.8</version>
   </parent>
 
   <!-- Properties -->
   <properties>
     <version.apache.felix.log>1.0.0</version.apache.felix.log>
-    <version.jboss.osgi.common>1.0.6-SNAPSHOT</version.jboss.osgi.common>
-    <version.jboss.osgi.common.core>2.2.17.SP1-SNAPSHOT</version.jboss.osgi.common.core>
-    <version.jboss.osgi.jndi>1.0.4-SNAPSHOT</version.jboss.osgi.jndi>
+    <version.jboss.osgi.common>1.0.6</version.jboss.osgi.common>
+    <version.jboss.osgi.common.core>2.2.17.SP1</version.jboss.osgi.common.core>
+    <version.jboss.osgi.jndi>1.0.4</version.jboss.osgi.jndi>
     <version.jboss.osgi.felix>2.0.4</version.jboss.osgi.felix>
   </properties>
   
