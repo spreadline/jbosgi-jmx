@@ -9,8 +9,6 @@
   <!--                                                                        -->
   <!-- ====================================================================== -->
 
-  <!-- $Id$ -->
-  
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
@@ -27,7 +25,7 @@
   <parent>
     <groupId>org.jboss.osgi</groupId>
     <artifactId>jboss-osgi-parent</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.9</version>
   </parent>
 
   <!-- SCM -->
@@ -40,7 +38,7 @@
   <!-- Properties -->
   <properties>
     <version.apache.aries.jmx>0.1-incubating</version.apache.aries.jmx>
-    <version.jboss.osgi.spi>1.0.7</version.jboss.osgi.spi>
+    <version.jboss.osgi.spi>1.0.14</version.jboss.osgi.spi>
     <version.osgi>4.2.0</version.osgi>
   </properties>
   

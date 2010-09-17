@@ -31,9 +31,9 @@
   <!-- Properties -->
   <properties>
     <version.apache.felix.log>1.0.0</version.apache.felix.log>
-    <version.jboss.osgi.common>1.0.4</version.jboss.osgi.common>
-    <version.jboss.osgi.common.core>2.2.13.GA</version.jboss.osgi.common.core>
-    <version.jboss.osgi.jndi>1.0.3</version.jboss.osgi.jndi>
+    <version.jboss.osgi.common>1.0.6-SNAPSHOT</version.jboss.osgi.common>
+    <version.jboss.osgi.common.core>2.2.17.SP1-SNAPSHOT</version.jboss.osgi.common.core>
+    <version.jboss.osgi.jndi>1.0.4-SNAPSHOT</version.jboss.osgi.jndi>
     <version.jboss.osgi.felix>2.0.4</version.jboss.osgi.felix>
   </properties>
   
@@ -72,13 +72,13 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.jboss.osgi.bundles</groupId>
+      <groupId>org.jboss.osgi.common</groupId>
       <artifactId>jboss-osgi-common</artifactId>
       <version>${version.jboss.osgi.common}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.osgi.bundles</groupId>
+      <groupId>org.jboss.osgi.common</groupId>
       <artifactId>jboss-osgi-common-core</artifactId>
       <version>${version.jboss.osgi.common.core}</version>
       <scope>provided</scope>
@@ -110,8 +110,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.logging</groupId>
-      <artifactId>jboss-logging-log4j</artifactId>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
