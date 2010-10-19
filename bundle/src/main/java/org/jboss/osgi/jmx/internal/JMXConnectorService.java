@@ -25,14 +25,16 @@ package org.jboss.osgi.jmx.internal;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.rmi.NotBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RMIServerSocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 
 import javax.management.MBeanServer;
-import javax.management.remote.JMXConnectorServer;
-import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.management.remote.rmi.RMIConnectorServer;
+import javax.management.remote.rmi.RMIJRMPServerImpl;
 
 import org.jboss.logging.Logger;
 
@@ -48,46 +50,70 @@ public class JMXConnectorService
    private static final Logger log = Logger.getLogger(JMXConnectorService.class);
 
    private JMXServiceURL serviceURL;
-   private JMXConnectorServer jmxConnectorServer;
+   private RMIConnectorServer connectorServer;
+   private RMIJRMPServerImpl rmiServer;
    private boolean shutdownRegistry;
    private Registry rmiRegistry;
+   private String rmiHost;
+   private int rmiPort;
 
-   public JMXConnectorService(JMXServiceURL serviceURL, int regPort) throws IOException
+   public JMXConnectorService(JMXServiceURL serviceURL, int rmiPort) throws IOException
    {
       this.serviceURL = serviceURL;
-
-      String host = serviceURL.getHost();
+      this.rmiHost = serviceURL.getHost();
+      this.rmiPort = rmiPort;
       
       // Check to see if registry already created
-      rmiRegistry = LocateRegistry.getRegistry(host, regPort);
+      rmiRegistry = LocateRegistry.getRegistry(rmiHost, rmiPort);
       try
       {
          rmiRegistry.list();
-         log.debug("RMI registry running at host=" + host + ",port=" + regPort);
+         log.debug("RMI registry running at host=" + rmiHost + ",port=" + rmiPort);
       }
       catch (Exception ex)
       {
-         log.debug("No RMI registry running at host=" + host + ",port=" + regPort + ".  Will create one.");
-         rmiRegistry = LocateRegistry.createRegistry(regPort, null, new DefaultSocketFactory(InetAddress.getByName(host)));
+         log.debug("No RMI registry running at host=" + rmiHost + ",port=" + rmiPort + ".  Will create one.");
+         rmiRegistry = LocateRegistry.createRegistry(rmiPort, null, new DefaultSocketFactory(InetAddress.getByName(rmiHost)));
          shutdownRegistry = true;
       }
    }
 
    public void start(MBeanServer mbeanServer) throws IOException
    {
-      // create new connector server and start it
-      jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, null, mbeanServer);
-      log.debug("JMXConnectorServer created: " + serviceURL);
+      boolean jmxConnectorAvailable = false;
+      try
+      {
+         rmiRegistry.lookup("jmxrmi");
+         jmxConnectorAvailable = true;
+      }
+      catch (NotBoundException ex)
+      {
+         // ignore
+      }
+      
+      if (jmxConnectorAvailable == false)
+      {
+         // create new connector server and start it
+         RMIServerSocketFactory serverSocketFactory = new DefaultSocketFactory(InetAddress.getByName(rmiHost));
+         rmiServer = new RMIJRMPServerImpl(rmiPort, null, serverSocketFactory, null);
+         connectorServer = new RMIConnectorServer(serviceURL, null, rmiServer, mbeanServer);
+         log.debug("JMXConnectorServer created: " + serviceURL);
 
-      jmxConnectorServer.start();
-      log.debug("JMXConnectorServer started: " + serviceURL);
+         connectorServer.start();
+         rmiRegistry.rebind("jmxrmi", rmiServer.toStub());
+         log.debug("JMXConnectorServer started: " + serviceURL);
+      }
    }
 
    public void stop()
    {
       try
       {
-         jmxConnectorServer.stop();
+         if (connectorServer != null)
+         {
+            connectorServer.stop();
+            rmiRegistry.unbind("jmxrmi");
+         }
 
          // Shutdown the registry if this service created it
          if (shutdownRegistry == true)
@@ -98,7 +124,7 @@ public class JMXConnectorService
 
          log.debug("JMXConnectorServer stopped");
       }
-      catch (IOException ex)
+      catch (Exception ex)
       {
          log.warn("Cannot stop JMXConnectorServer", ex);
       }

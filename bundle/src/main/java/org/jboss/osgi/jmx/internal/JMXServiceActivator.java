@@ -23,12 +23,10 @@ package org.jboss.osgi.jmx.internal;
 
 //$Id$
 
-import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_JMX_HOST;
-import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_JMX_RMI_PORT;
 import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT;
-import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_HOST;
-import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_RMI_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_RMI_HOST;
 import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_RMI_REGISTRY_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_RMI_HOST;
 
 import java.io.IOException;
 
@@ -36,7 +34,6 @@ import javax.management.MBeanServer;
 import javax.management.remote.JMXServiceURL;
 
 import org.jboss.logging.Logger;
-import org.jboss.osgi.jmx.JMXServiceURLFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -52,8 +49,7 @@ public class JMXServiceActivator implements BundleActivator
    private static final Logger log = Logger.getLogger(JMXServiceActivator.class);
 
    private JMXConnectorService jmxConnector;
-   private String jmxHost;
-   private String jmxPortStr;
+   private String rmiHost;
    private String rmiPortStr;
    private MBeanServer mbeanServer;
    private FrameworkStateExt frameworkState;
@@ -86,31 +82,27 @@ public class JMXServiceActivator implements BundleActivator
       packageState = new PackageStateExt(sysContext, mbeanServer);
       packageState.start();
 
-      jmxHost = context.getProperty(REMOTE_JMX_HOST);
-      if (jmxHost == null)
-         jmxHost = DEFAULT_REMOTE_JMX_HOST;
-
-      jmxPortStr = context.getProperty(REMOTE_JMX_RMI_PORT);
-      if (jmxPortStr == null)
-         jmxPortStr = DEFAULT_REMOTE_JMX_RMI_PORT;
+      rmiHost = context.getProperty(REMOTE_RMI_HOST);
+      if (rmiHost == null)
+         rmiHost = DEFAULT_REMOTE_RMI_HOST;
 
       rmiPortStr = context.getProperty(REMOTE_JMX_RMI_REGISTRY_PORT);
       if (rmiPortStr == null)
          rmiPortStr = DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT;
 
-      int jmxPort = Integer.parseInt(jmxPortStr);
       int rmiPort = Integer.parseInt(rmiPortStr);
-      
+
       // Start the JSR160 connector
-      JMXServiceURL serviceURL = JMXServiceURLFactory.getServiceURL(jmxHost, jmxPort, rmiPort);
+      String urlString = "service:jmx:rmi://" + rmiHost + ":" + rmiPort + "/jmxrmi";
       try
       {
+         JMXServiceURL serviceURL = new JMXServiceURL(urlString);
          jmxConnector = new JMXConnectorService(serviceURL, rmiPort);
          jmxConnector.start(mbeanServer);
       }
       catch (IOException ex)
       {
-         log.error("Cannot start JMXConnectorServer on: " + serviceURL, ex);
+         log.error("Cannot start JMXConnectorServer", ex);
       }
    }
 

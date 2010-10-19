@@ -31,17 +31,13 @@ package org.jboss.osgi.jmx;
  */
 public interface JMXConstantsExt
 {
-   /** The property that sets the host that the RMIAdaptor binds to: org.jboss.osgi.jmx.host */
-   String REMOTE_JMX_HOST = "org.jboss.osgi.jmx.host";
-   /** The property that sets the port that the RMIAdaptor binds to: org.jboss.osgi.jmx.rmi.port */
-   String REMOTE_JMX_RMI_PORT = "org.jboss.osgi.jmx.rmi.port";
-   /** The property that sets the port that the RMI Registry binds to: org.jboss.osgi.jmx.rmi.registry.port */
-   String REMOTE_JMX_RMI_REGISTRY_PORT = "org.jboss.osgi.jmx.rmi.registry.port";
+   /** The property that sets the host that the RMIAdaptor binds to: org.jboss.osgi.rmi.host */
+   String REMOTE_RMI_HOST = "org.jboss.osgi.rmi.host";
+   /** The property that sets the port that the RMI Registry binds to: org.jboss.osgi.rmi.port */
+   String REMOTE_JMX_RMI_REGISTRY_PORT = "org.jboss.osgi.rmi.port";
    
    /** The default host that the RMIAdaptor binds to: localhost */
-   String DEFAULT_REMOTE_JMX_HOST = "localhost";
-   /** The default port that the RMIAdaptor binds to: 1198 */
-   String DEFAULT_REMOTE_JMX_RMI_PORT = "1198";
+   String DEFAULT_REMOTE_RMI_HOST = "localhost";
    /** The default port that the RMI Registry binds to: 1090 */
    String DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT = "1090";
 }

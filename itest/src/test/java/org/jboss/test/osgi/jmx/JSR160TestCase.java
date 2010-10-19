@@ -34,7 +34,6 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.jboss.osgi.jmx.JMXServiceURLFactory;
 import org.jboss.osgi.jmx.ObjectNameFactory;
 import org.junit.Test;
 import org.osgi.jmx.framework.BundleStateMBean;
@@ -53,7 +52,7 @@ public class JSR160TestCase extends AbstractJMXTestCase
    public void testJMXConnector() throws Exception
    {
       // The address of the connector server
-      JMXServiceURL serviceURL = JMXServiceURLFactory.getServiceURL(getServerHost(), null, null);
+      JMXServiceURL serviceURL = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:1090/jmxrmi");
 
       // The environment map, null in this case
       Map<String, ?> environment = null;
