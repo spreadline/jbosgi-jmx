@@ -24,9 +24,9 @@ package org.jboss.osgi.jmx;
 //$Id$
 
 import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_RMI_HOST;
-import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_RMI_PORT;
 import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_RMI_HOST;
-import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_RMI_REGISTRY_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_RMI_PORT;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -69,7 +69,7 @@ public class JMXCapability extends Capability
       super(MBeanServer.class.getName());
 
       addSystemProperty(REMOTE_RMI_HOST, System.getProperty("jboss.bind.address", DEFAULT_REMOTE_RMI_HOST));
-      addSystemProperty(REMOTE_JMX_RMI_REGISTRY_PORT, DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT);
+      addSystemProperty(REMOTE_RMI_PORT, DEFAULT_REMOTE_RMI_PORT);
 
       addDependency(new CompendiumCapability());
 

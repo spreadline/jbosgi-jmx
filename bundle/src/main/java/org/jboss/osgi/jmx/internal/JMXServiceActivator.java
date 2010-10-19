@@ -23,9 +23,9 @@ package org.jboss.osgi.jmx.internal;
 
 //$Id$
 
-import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_RMI_PORT;
 import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_RMI_HOST;
-import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_JMX_RMI_REGISTRY_PORT;
+import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_RMI_PORT;
 import static org.jboss.osgi.jmx.JMXConstantsExt.REMOTE_RMI_HOST;
 
 import java.io.IOException;
@@ -86,9 +86,9 @@ public class JMXServiceActivator implements BundleActivator
       if (rmiHost == null)
          rmiHost = DEFAULT_REMOTE_RMI_HOST;
 
-      rmiPortStr = context.getProperty(REMOTE_JMX_RMI_REGISTRY_PORT);
+      rmiPortStr = context.getProperty(REMOTE_RMI_PORT);
       if (rmiPortStr == null)
-         rmiPortStr = DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT;
+         rmiPortStr = DEFAULT_REMOTE_RMI_PORT;
 
       int rmiPort = Integer.parseInt(rmiPortStr);
 

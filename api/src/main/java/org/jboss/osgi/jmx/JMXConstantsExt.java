@@ -34,10 +34,10 @@ public interface JMXConstantsExt
    /** The property that sets the host that the RMIAdaptor binds to: org.jboss.osgi.rmi.host */
    String REMOTE_RMI_HOST = "org.jboss.osgi.rmi.host";
    /** The property that sets the port that the RMI Registry binds to: org.jboss.osgi.rmi.port */
-   String REMOTE_JMX_RMI_REGISTRY_PORT = "org.jboss.osgi.rmi.port";
+   String REMOTE_RMI_PORT = "org.jboss.osgi.rmi.port";
    
-   /** The default host that the RMIAdaptor binds to: localhost */
-   String DEFAULT_REMOTE_RMI_HOST = "localhost";
+   /** The default host that the RMIAdaptor binds to: 127.0.0.1 */
+   String DEFAULT_REMOTE_RMI_HOST = "127.0.0.1";
    /** The default port that the RMI Registry binds to: 1090 */
-   String DEFAULT_REMOTE_JMX_RMI_REGISTRY_PORT = "1090";
+   String DEFAULT_REMOTE_RMI_PORT = "1090";
 }
