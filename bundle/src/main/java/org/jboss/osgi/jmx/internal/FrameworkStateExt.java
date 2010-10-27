@@ -21,7 +21,6 @@
  */
 package org.jboss.osgi.jmx.internal;
 
-//$Id$
 
 import java.io.IOException;
 import java.util.Arrays;

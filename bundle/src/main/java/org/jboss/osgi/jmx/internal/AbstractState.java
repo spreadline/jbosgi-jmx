@@ -21,7 +21,6 @@
  */
 package org.jboss.osgi.jmx.internal;
 
-//$Id$
 
 import javax.management.JMException;
 import javax.management.MBeanServer;

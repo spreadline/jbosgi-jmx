@@ -21,7 +21,6 @@
  */
 package org.jboss.osgi.jmx;
 
-//$Id$
 
 import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_RMI_HOST;
 import static org.jboss.osgi.jmx.JMXConstantsExt.DEFAULT_REMOTE_RMI_PORT;

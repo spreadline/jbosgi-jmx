@@ -21,7 +21,6 @@
  */
 package org.jboss.test.osgi.jmx;
 
-//$Id: ServiceStateTestCase.java 103562 2010-04-06 10:25:15Z thomas.diesler@jboss.com $
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

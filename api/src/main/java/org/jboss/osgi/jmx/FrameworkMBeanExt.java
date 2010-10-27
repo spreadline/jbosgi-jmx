@@ -23,7 +23,6 @@ package org.jboss.osgi.jmx;
 
 import org.osgi.jmx.framework.FrameworkMBean;
 
-//$Id$
 
 /**
  * An extension to {@link FrameworkMBean}.

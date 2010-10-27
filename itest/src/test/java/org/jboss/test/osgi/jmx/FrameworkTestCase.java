@@ -21,7 +21,6 @@
  */
 package org.jboss.test.osgi.jmx;
 
-//$Id$
 
 import static org.junit.Assert.assertTrue;
 

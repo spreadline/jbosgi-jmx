@@ -21,7 +21,6 @@
  */
 package org.jboss.test.osgi.jmx;
 
-//$Id$
 
 import java.io.File;
 import java.io.IOException;

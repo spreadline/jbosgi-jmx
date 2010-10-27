@@ -21,7 +21,6 @@
  */
 package org.jboss.osgi.jmx;
 
-//$Id$
 
 /**
  * The JMX service contants

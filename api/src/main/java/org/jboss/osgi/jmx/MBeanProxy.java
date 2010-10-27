@@ -21,7 +21,6 @@
  */
 package org.jboss.osgi.jmx;
 
-// $Id$
 
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
